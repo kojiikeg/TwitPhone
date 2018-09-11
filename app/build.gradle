@@ -11,7 +11,7 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
-        debug{
+        debug {
             buildConfigField "String", "SKYWAY_API_KEY", "\"${project.property("SkywayApiKey")}\""
             buildConfigField "String", "SKYWAY_HOST", "\"${project.property("SkywayHost")}\""
         }
