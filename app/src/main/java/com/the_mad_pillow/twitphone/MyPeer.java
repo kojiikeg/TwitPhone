@@ -122,15 +122,15 @@ public class MyPeer {
         }
         CallOption option = new CallOption();
         option.metadata = BuildConfig.SKYWAY_HOST;
-        MediaConnection connection = peer.call(peerId, stream, option);
+        MediaConnection mediaConnection = peer.call(peerId, stream, option);
 
-        if (connection == null) {
+        if (mediaConnection == null) {
             Log.d(TAG, "Call but MediaConnection is null");
             return;
         }
 
-        setConnectionCallback(connection);
-        this.connection = connection;
+        setConnectionCallback(mediaConnection);
+        connection = mediaConnection;
         Log.d(TAG, "connection started!");
     }
 
