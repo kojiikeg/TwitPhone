@@ -16,7 +16,6 @@ import twitter4j.auth.RequestToken;
 
 public class TwitterOAuthActivity extends AppCompatActivity {
     private final String TAG = getClass().getSimpleName();
-    private String callBackURL;
     private Twitter twitter;
     private RequestToken requestToken;
 
@@ -24,7 +23,6 @@ public class TwitterOAuthActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        callBackURL = getString(R.string.twitter_callback_url);
         twitter = TwitterUtils.getTwitterInstance(this);
 
         startAuthorize();
@@ -39,7 +37,7 @@ public class TwitterOAuthActivity extends AppCompatActivity {
             @Override
             protected String doInBackground(Void... voids) {
                 try {
-                    requestToken = twitter.getOAuthRequestToken(callBackURL);
+                    requestToken = twitter.getOAuthRequestToken(getString(R.string.twitter_callback_url));
                     return requestToken.getAuthorizationURL();
                 } catch (TwitterException e) {
                     e.printStackTrace();
@@ -70,7 +68,9 @@ public class TwitterOAuthActivity extends AppCompatActivity {
     @SuppressLint("StaticFieldLeak")
     @Override
     public void onNewIntent(Intent intent) {
-        if (intent == null || intent.getData() == null || !intent.getData().toString().startsWith(callBackURL)) {
+        if (intent == null
+                || intent.getData() == null
+                || !intent.getData().toString().startsWith(getString(R.string.twitter_callback_url))) {
             return;
         }
 
