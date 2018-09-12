@@ -1,8 +1,10 @@
 package com.the_mad_pillow.twitphone;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -15,6 +17,10 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.the_mad_pillow.twitphone.twitter.MyTwitter;
+import com.the_mad_pillow.twitphone.twitter.TwitterOAuthActivity;
+import com.the_mad_pillow.twitphone.twitter.TwitterUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +28,6 @@ import io.skyway.Peer.Browser.Navigator;
 import io.skyway.Peer.OnCallback;
 import io.skyway.Peer.Peer;
 import io.skyway.Peer.PeerOption;
-import twitter4j.Twitter;
 
 public class MainActivity extends AppCompatActivity {
     private static final int RECORD_AUDIO_REQUEST_ID = 1;
@@ -36,8 +41,9 @@ public class MainActivity extends AppCompatActivity {
     private MyAdapter adapter;
     private List<String> idList = new ArrayList<>();
 
-    private Twitter twitter;
+    private MyTwitter myTwitter;
 
+    @SuppressLint("StaticFieldLeak")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +57,22 @@ public class MainActivity extends AppCompatActivity {
             finish();
         }
 
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                myTwitter = new MyTwitter(MainActivity.this);
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void result) {
+                showUI();
+            }
+        }.execute();
+    }
+
+    //TODO Activity化
+    private void showUI() {
         //API23以上　別途権限認証
         checkAudioPermission();
 
@@ -59,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         options.key = BuildConfig.SKYWAY_API_KEY;
         options.domain = BuildConfig.SKYWAY_HOST;
         options.turn = true;
-        peer = new MyPeer(this, options);
+        peer = new MyPeer(this, myTwitter.getScreenName(), options);
         Navigator.initialize(peer.getPeer());
 
         //peerID List
@@ -89,7 +111,9 @@ public class MainActivity extends AppCompatActivity {
 
         //リロードボタン
         Button refreshBtn = findViewById(R.id.refresh_btn);
-        refreshBtn.setOnClickListener(new View.OnClickListener() {
+        refreshBtn.setOnClickListener(new View.OnClickListener()
+
+        {
             @Override
             public void onClick(View view) {
                 peer.refreshPeerList();
@@ -97,8 +121,8 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    /*
-    debug
+    /**
+     * debug
      */
     private void showCurrentPeerId() {
         peer.on(Peer.PeerEventEnum.OPEN, new OnCallback() {
@@ -115,8 +139,8 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    /*
-    API23以降必要 音声権限
+    /**
+     * API23以降必要 音声権限
      */
     private void checkAudioPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
@@ -142,8 +166,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /*
-    API23以降は追加の権限要求が必要
+    /**
+     * API23以降は追加の権限要求が必要
      */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
