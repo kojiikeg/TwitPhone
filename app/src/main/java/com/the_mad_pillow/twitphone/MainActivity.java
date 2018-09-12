@@ -1,6 +1,7 @@
 package com.the_mad_pillow.twitphone;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -21,23 +22,34 @@ import io.skyway.Peer.Browser.Navigator;
 import io.skyway.Peer.OnCallback;
 import io.skyway.Peer.Peer;
 import io.skyway.Peer.PeerOption;
+import twitter4j.Twitter;
 
 public class MainActivity extends AppCompatActivity {
-
     private static final int RECORD_AUDIO_REQUEST_ID = 1;
-    private MyPeer peer;
+    private final String TAG = getClass().getSimpleName();
 
-    private String TAG = getClass().getSimpleName();
+    private MyPeer peer;
+    //debug peerID表示
     private String currentId;
 
     private ListView listView;
     private MyAdapter adapter;
     private List<String> idList = new ArrayList<>();
 
+    private Twitter twitter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //TwitterAccessTokenCheck
+        //TODO ボタンでのログインに変更する
+        if (!TwitterUtils.hasAccessToken(this)) {
+            Intent intent = new Intent(getApplication(), TwitterOAuthActivity.class);
+            startActivity(intent);
+            finish();
+        }
 
         //API23以上　別途権限認証
         checkAudioPermission();
