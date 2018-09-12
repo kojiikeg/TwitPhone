@@ -1,7 +1,9 @@
-package com.the_mad_pillow.twitphone;
+package com.the_mad_pillow.twitphone.twitter;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+
+import com.the_mad_pillow.twitphone.BuildConfig;
 
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;

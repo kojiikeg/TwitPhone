@@ -30,7 +30,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".TwitterOAuthActivity"
+            android:name=".twitter.TwitterOAuthActivity"
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
