@@ -196,4 +196,8 @@ public class MainActivity extends AppCompatActivity {
     public List<String> getIdList() {
         return idList;
     }
+
+    public MyTwitter getMyTwitter() {
+        return myTwitter;
+    }
 }

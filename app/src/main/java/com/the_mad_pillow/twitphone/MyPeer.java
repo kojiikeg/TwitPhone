@@ -27,7 +27,7 @@ public class MyPeer {
         this.activity = activity;
     }
 
-    public MyPeer(MainActivity activity, String peerId, PeerOption options) {
+    MyPeer(MainActivity activity, String peerId, PeerOption options) {
         peer = new Peer(activity, peerId, options);
         this.activity = activity;
     }
@@ -65,8 +65,10 @@ public class MyPeer {
         peer.on(peerEventEnum, callback);
     }
 
+    /**
+     * オンラインのpeerIDListのリロード
+     */
     public void refreshPeerList() {
-        Log.d(TAG, "Refreshing");
         peer.listAllPeers(new OnCallback() {
             @Override
             public void onCallback(Object object) {
@@ -76,10 +78,12 @@ public class MyPeer {
                     for (int i = 0; i < array.length(); i++) {
                         try {
                             String id = array.getString(i);
-                            activity.getIdList().add(id);
-                            Log.d(TAG, "Fetched PeerId: " + id);
+                            //自分のIDはListに表示しない
+                            if (!id.equals(activity.getMyTwitter().getScreenName())) {
+                                activity.getIdList().add(id);
+                            }
                         } catch (JSONException e) {
-                            Log.e(TAG, "Parse ListAllPeer", e);
+                            e.printStackTrace();
                         }
                     }
                     activity.runOnUiThread(new Runnable() {
