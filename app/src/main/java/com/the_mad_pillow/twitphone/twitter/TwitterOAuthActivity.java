@@ -1,4 +1,4 @@
-package com.the_mad_pillow.twitphone;
+package com.the_mad_pillow.twitphone.twitter;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -8,6 +8,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.the_mad_pillow.twitphone.MainActivity;
+import com.the_mad_pillow.twitphone.R;
 
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
