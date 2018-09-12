@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">TwitPhone</string>
+    <string name="twitter_callback_url">twitphone://</string>
 </resources>
