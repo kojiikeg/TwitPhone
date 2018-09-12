@@ -31,14 +31,14 @@ public class TwitterUtils {
     /**
      * TOKENの格納
      *
-     * @param context MainActivity context
-     * @param token   TwitterAPI AccessToken
+     * @param context     MainActivity context
+     * @param accessToken TwitterAPI AccessToken
      */
-    public static void storeAccessToken(Context context, AccessToken token) {
+    public static void storeAccessToken(Context context, AccessToken accessToken) {
         SharedPreferences preferences = context.getSharedPreferences(ACCESS_TOKEN, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(TOKEN, token.getToken());
-        editor.putString(TOKEN_SECRET, token.getTokenSecret());
+        editor.putString(TOKEN, accessToken.getToken());
+        editor.putString(TOKEN_SECRET, accessToken.getTokenSecret());
 
         editor.apply();
     }
@@ -62,7 +62,7 @@ public class TwitterUtils {
         }
     }
 
-    private static boolean hasAccessToken(Context context) {
+    public static boolean hasAccessToken(Context context) {
         return loadAccessToken(context) != null;
     }
 }
