@@ -4,8 +4,9 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -57,18 +58,19 @@ public class MainActivity extends AppCompatActivity {
             finish();
         }
 
-        new AsyncTask<Void, Void, Void>() {
+        //非同期TaskのデータをUIThreadで処理するHandler
+        @SuppressLint("HandlerLeak")
+        Handler handler = new Handler() {
             @Override
-            protected Void doInBackground(Void... voids) {
-                myTwitter = new MyTwitter(MainActivity.this);
-                return null;
+            public void handleMessage(Message msg) {
+                switch (msg.what) {
+                    case 0: //GetScreenNameTask
+                        showUI();
+                        break;
+                }
             }
-
-            @Override
-            protected void onPostExecute(Void result) {
-                showUI();
-            }
-        }.execute();
+        };
+        myTwitter = new MyTwitter(this, handler);
     }
 
     //TODO Activity化
