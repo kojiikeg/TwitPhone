@@ -73,7 +73,6 @@ public class MainActivity extends AppCompatActivity {
         myTwitter = new MyTwitter(this, handler);
     }
 
-    //TODO Activity化
     private void showUI() {
         //API23以上　別途権限認証
         checkAudioPermission();
@@ -113,9 +112,7 @@ public class MainActivity extends AppCompatActivity {
 
         //リロードボタン
         Button refreshBtn = findViewById(R.id.refresh_btn);
-        refreshBtn.setOnClickListener(new View.OnClickListener()
-
-        {
+        refreshBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 peer.refreshPeerList();
