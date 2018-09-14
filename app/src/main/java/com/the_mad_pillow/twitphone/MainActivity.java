@@ -10,14 +10,17 @@ import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.the_mad_pillow.twitphone.twitter.MyTwitter;
 import com.the_mad_pillow.twitphone.twitter.TwitterOAuthActivity;
 import com.the_mad_pillow.twitphone.twitter.TwitterUtils;
@@ -25,6 +28,7 @@ import com.the_mad_pillow.twitphone.twitter.TwitterUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import io.skyway.Peer.Browser.Navigator;
 import io.skyway.Peer.OnCallback;
 import io.skyway.Peer.Peer;
@@ -50,6 +54,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        final ViewGroup view = (ViewGroup) getLayoutInflater().inflate(R.layout.custom_actionbar, null);
+        // Set up ActionBar
+        final ActionBar actionBar = getSupportActionBar();
+        actionBar.setCustomView(view);
+        actionBar.setDisplayShowHomeEnabled(false);
+        actionBar.setDisplayShowTitleEnabled(false);
+        actionBar.setDisplayShowCustomEnabled(true);
+
         //TwitterAccessTokenCheck
         //TODO ボタンでのログインに変更する
         if (!TwitterUtils.hasAccessToken(this)) {
@@ -74,8 +86,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showUI() {
-        //API23以上　別途権限認証
-        checkAudioPermission();
+        // アクションバーアイコン表示
+        CircleImageView actionBarIcon = (CircleImageView) findViewById(R.id.actonBarIcon);
+        Glide.with(this).load(myTwitter.getProfileImage()).centerCrop().into(actionBarIcon);
 
         //PeerID取得
         PeerOption options = new PeerOption();
