@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void handleMessage(Message msg) {
                 switch (msg.what) {
-                    case 0: //GetScreenNameTask
+                    case 0: //GetTwitterTask
                         showUI();
                         break;
                 }
