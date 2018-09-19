@@ -26,7 +26,6 @@ public class MyTwitter {
     private Twitter twitter;
     private String screenName;
     private String profileImageBigger;
-    private String profileImageSmaller;
     private String profileImage400;
     private List<User> followList;
     private List<User> followerList;
@@ -95,7 +94,6 @@ public class MyTwitter {
             protected Void doInBackground(Void... voids) {
                 try {
                     profileImageBigger = twitter.verifyCredentials().getBiggerProfileImageURLHttps();
-                    profileImageSmaller = twitter.verifyCredentials().getMiniProfileImageURLHttps();
                     profileImage400 = twitter.verifyCredentials().get400x400ProfileImageURLHttps();
                     return null;
                 } catch (TwitterException e) {
@@ -190,10 +188,6 @@ public class MyTwitter {
 
     public String getProfileImageBigger() {
         return profileImageBigger;
-    }
-
-    public String getProfileImageSmaller() {
-        return profileImageSmaller;
     }
 
     public String getProfileImage400() {
