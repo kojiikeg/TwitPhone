@@ -17,7 +17,9 @@ public class MyTwitter {
     private Context activity;
     private Twitter twitter;
     private String screenName;
-    private String profileImage;
+    private String profileImageBigger;
+    private String profileImageSmaller;
+    private String profileImage400;
 
     @SuppressLint("HandlerLeak")
     public MyTwitter(Context context, final Handler mainHandler) {
@@ -69,12 +71,14 @@ public class MyTwitter {
     }
 
     @SuppressLint("StaticFieldLeak")
-    public void initGetProfileImage() {
+    private void initGetProfileImage() {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
                 try {
-                    profileImage = twitter.verifyCredentials().getBiggerProfileImageURL();
+                    profileImageBigger = twitter.verifyCredentials().getBiggerProfileImageURLHttps();
+                    profileImageSmaller = twitter.verifyCredentials().getMiniProfileImageURLHttps();
+                    profileImage400 = twitter.verifyCredentials().get400x400ProfileImageURLHttps();
                     return null;
                 } catch (TwitterException e) {
                     e.printStackTrace();
@@ -89,7 +93,15 @@ public class MyTwitter {
         }.execute();
     }
 
-    public String getProfileImage() {
-        return profileImage;
+    public String getProfileImageBigger() {
+        return profileImageBigger;
+    }
+
+    public String getProfileImageSmaller() {
+        return profileImageSmaller;
+    }
+
+    public String getProfileImage400() {
+        return profileImage400;
     }
 }
