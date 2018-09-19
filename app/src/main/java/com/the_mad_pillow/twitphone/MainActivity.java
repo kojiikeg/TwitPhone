@@ -4,23 +4,27 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.the_mad_pillow.twitphone.twitter.MyTwitter;
 import com.the_mad_pillow.twitphone.twitter.TwitterOAuthActivity;
 import com.the_mad_pillow.twitphone.twitter.TwitterUtils;
@@ -28,7 +32,6 @@ import com.the_mad_pillow.twitphone.twitter.TwitterUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.hdodenhof.circleimageview.CircleImageView;
 import io.skyway.Peer.Browser.Navigator;
 import io.skyway.Peer.OnCallback;
 import io.skyway.Peer.Peer;
@@ -54,14 +57,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final ViewGroup view = (ViewGroup) getLayoutInflater().inflate(R.layout.custom_actionbar, null);
-        // Set up ActionBar
-        final ActionBar actionBar = getSupportActionBar();
-        actionBar.setCustomView(view);
-        actionBar.setDisplayShowHomeEnabled(false);
-        actionBar.setDisplayShowTitleEnabled(false);
-        actionBar.setDisplayShowCustomEnabled(true);
-
         //TwitterAccessTokenCheck
         //TODO ボタンでのログインに変更する
         if (!TwitterUtils.hasAccessToken(this)) {
@@ -85,10 +80,33 @@ public class MainActivity extends AppCompatActivity {
         myTwitter = new MyTwitter(this, handler);
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            Toast.makeText(MainActivity.this, "Replace with your own action", Toast.LENGTH_LONG).show();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private void showUI() {
-        // アクションバーアイコン表示
-        CircleImageView actionBarIcon = (CircleImageView) findViewById(R.id.actonBarIcon);
-        Glide.with(this).load(myTwitter.getProfileImage()).centerCrop().into(actionBarIcon);
+        // アイコンを指定
+        if (getSupportActionBar() != null) {
+            RequestOptions requestOptions = new RequestOptions()
+                    .override(getSupportActionBar().getHeight() * 3 / 4)
+                    .circleCrop();
+            Glide.with(this)
+                    .load(myTwitter.getProfileImage400())
+                    .apply(requestOptions)
+                    .into(new SimpleTarget<Drawable>() {
+                        @Override
+                        public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
+                            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                            getSupportActionBar().setHomeAsUpIndicator(resource);
+                        }
+                    });
+        }
 
         //PeerID取得
         PeerOption options = new PeerOption();
