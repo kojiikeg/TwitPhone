@@ -12,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -19,7 +20,6 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
     //debug peerID表示
     private String currentId;
 
-    private ListView listView;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private MyAdapter adapter;
     private List<String> idList = new ArrayList<>();
 
@@ -84,6 +84,14 @@ public class MainActivity extends AppCompatActivity {
         myTwitter = new MyTwitter(this, handler);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (peer != null) {
+            peer.getPeer().disconnect();
+        }
+    }
+
     /**
      * ActionBarのItemクリック時の処理
      *
@@ -101,6 +109,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showUI() {
+        if (peer == null) {
+            createPeerId();
+        } else {
+            peer.getPeer().reconnect();
+        }
+
         // アイコンを指定
         if (getSupportActionBar() != null) {
             RequestOptions requestOptions = new RequestOptions()
@@ -118,6 +132,14 @@ public class MainActivity extends AppCompatActivity {
                     });
         }
 
+        //peerID List
+        createSwipeRefreshLayout();
+
+        //debug 自分のpeerID表示
+        showCurrentPeerId();
+    }
+
+    public void createPeerId() {
         //PeerID取得
         PeerOption options = new PeerOption();
         options.key = BuildConfig.SKYWAY_API_KEY;
@@ -125,40 +147,6 @@ public class MainActivity extends AppCompatActivity {
         options.turn = true;
         peer = new MyPeer(this, myTwitter.getScreenName(), options);
         Navigator.initialize(peer.getPeer());
-
-        //peerID List
-        listView = findViewById(R.id.listView);
-        adapter = new MyAdapter(this, 0, idList);
-        listView.setAdapter(adapter);
-
-        //Listクリック時の動作追加
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String selectedPeerId = idList.get(i);
-                if (selectedPeerId == null) {
-                    Log.d(TAG, "Selected PeerId == null");
-                    return;
-                }
-                Log.d(TAG, "SelectedPeerId: " + selectedPeerId);
-                peer.call(selectedPeerId);
-            }
-        });
-
-        //debug 自分のpeerID表示
-        showCurrentPeerId();
-
-        //Listリロード
-        peer.refreshPeerList();
-
-        //リロードボタン
-        Button refreshBtn = findViewById(R.id.refresh_btn);
-        refreshBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                peer.refreshPeerList();
-            }
-        });
     }
 
     /**
@@ -175,6 +163,42 @@ public class MainActivity extends AppCompatActivity {
                     currentId = (String) object;
                     ((TextView) findViewById(R.id.debugTextView)).setText(currentId);
                 }
+            }
+        });
+    }
+
+    /**
+     * ListViewの設定
+     */
+    public void createSwipeRefreshLayout() {
+        //ListAdapter設定
+        ListView listView = findViewById(R.id.listView);
+        adapter = new MyAdapter(this, 0, idList);
+        listView.setAdapter(adapter);
+
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        // 色指定
+        swipeRefreshLayout.setColorSchemeResources(R.color.blue, R.color.lightBlue);
+
+        //スワイプ時の動作設定
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                peer.refreshPeerList();
+            }
+        });
+
+        //Listクリック時の動作設定
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String selectedPeerId = idList.get(i);
+                if (selectedPeerId == null) {
+                    Log.d(TAG, "Selected PeerId == null");
+                    return;
+                }
+                Log.d(TAG, "SelectedPeerId: " + selectedPeerId);
+                peer.call(selectedPeerId);
             }
         });
     }
@@ -227,6 +251,10 @@ public class MainActivity extends AppCompatActivity {
                 break;
             }
         }
+    }
+
+    public SwipeRefreshLayout getSwipeRefreshLayout() {
+        return swipeRefreshLayout;
     }
 
     public MyAdapter getAdapter() {

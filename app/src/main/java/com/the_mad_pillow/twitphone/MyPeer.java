@@ -90,6 +90,7 @@ public class MyPeer {
                         @Override
                         public void run() {
                             activity.getAdapter().notifyDataSetChanged();
+                            activity.getSwipeRefreshLayout().setRefreshing(false);
                         }
                     });
                 }
