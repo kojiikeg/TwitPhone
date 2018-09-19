@@ -11,15 +11,17 @@ import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -51,11 +53,13 @@ public class MainActivity extends AppCompatActivity {
 
     private MyTwitter myTwitter;
 
-    @SuppressLint("StaticFieldLeak")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //ActionBar設定
+        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
         //TwitterAccessTokenCheck
         //TODO ボタンでのログインに変更する
@@ -80,11 +84,17 @@ public class MainActivity extends AppCompatActivity {
         myTwitter = new MyTwitter(this, handler);
     }
 
+    /**
+     * ActionBarのItemクリック時の処理
+     *
+     * @param item ActionBarのそれぞれのItem
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+        Log.d("debug", "" + item.getItemId());
         if (id == android.R.id.home) {
-            Toast.makeText(MainActivity.this, "Replace with your own action", Toast.LENGTH_LONG).show();
+            ((DrawerLayout) findViewById(R.id.drawerLayout)).openDrawer(Gravity.START);
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -117,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
         Navigator.initialize(peer.getPeer());
 
         //peerID List
-        listView = findViewById(R.id.listview);
+        listView = findViewById(R.id.listView);
         adapter = new MyAdapter(this, 0, idList);
         listView.setAdapter(adapter);
 
