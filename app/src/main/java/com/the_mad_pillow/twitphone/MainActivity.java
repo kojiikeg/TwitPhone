@@ -84,6 +84,14 @@ public class MainActivity extends AppCompatActivity {
         myTwitter = new MyTwitter(this, handler);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (peer != null) {
+            peer.getPeer().disconnect();
+        }
+    }
+
     /**
      * ActionBarのItemクリック時の処理
      *
