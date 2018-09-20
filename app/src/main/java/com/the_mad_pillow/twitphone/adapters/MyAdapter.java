@@ -1,4 +1,4 @@
-package com.the_mad_pillow.twitphone;
+package com.the_mad_pillow.twitphone.adapters;
 
 import android.content.Context;
 import android.support.annotation.LayoutRes;
@@ -10,12 +10,14 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.the_mad_pillow.twitphone.R;
+
 import java.util.List;
 
 public class MyAdapter extends ArrayAdapter<String> {
     private LayoutInflater inflater;
 
-    MyAdapter(@NonNull Context context, @LayoutRes int resource, @NonNull List<String> objects) {
+    public MyAdapter(@NonNull Context context, @LayoutRes int resource, @NonNull List<String> objects) {
         super(context, resource, objects);
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
