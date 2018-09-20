@@ -27,6 +27,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.the_mad_pillow.twitphone.adapters.MyAdapter;
 import com.the_mad_pillow.twitphone.twitter.MyTwitter;
 import com.the_mad_pillow.twitphone.twitter.TwitterOAuthActivity;
 import com.the_mad_pillow.twitphone.twitter.TwitterUtils;
@@ -137,6 +138,19 @@ public class MainActivity extends AppCompatActivity {
 
         //debug 自分のpeerID表示
         showCurrentPeerId();
+
+        //TODO ページTABにしてListを分ける
+        /*
+        ListView followListView = findViewById(R.id.followList);
+        UserListAdapter followListAdapter = new UserListAdapter(this, 0, myTwitter.getFollowList());
+        followListView.setAdapter(followListAdapter);
+
+
+        ListView followerListView = findViewById(R.id.followerList);
+        UserListAdapter followerListAdapter = new UserListAdapter(this, 0, myTwitter.getFollowerList());
+        followListView.setAdapter(followerListAdapter);
+
+        */
     }
 
     public void createPeerId() {
