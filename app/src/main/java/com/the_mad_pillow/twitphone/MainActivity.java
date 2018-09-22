@@ -6,6 +6,7 @@ import android.animation.PropertyValuesHolder;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -24,6 +25,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 
 import com.bumptech.glide.Glide;
@@ -95,7 +97,19 @@ public class MainActivity extends AppCompatActivity {
         circleImageView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
+                view.performClick();
                 switchingListMenu(view);
+
+                //HighLight
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        ((ImageView) view).setColorFilter(Color.argb(100, 255, 255, 255));
+                        break;
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        ((ImageView) view).setColorFilter(null);
+                        break;
+                }
                 return true;
             }
         });
