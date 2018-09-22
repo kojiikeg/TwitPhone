@@ -1,12 +1,15 @@
 package com.the_mad_pillow.twitphone;
 
 import android.Manifest;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -18,15 +21,17 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.daasuu.ei.Ease;
+import com.daasuu.ei.EasingInterpolator;
 import com.the_mad_pillow.twitphone.adapters.MyAdapter;
 import com.the_mad_pillow.twitphone.twitter.MyTwitter;
 import com.the_mad_pillow.twitphone.twitter.TwitterOAuthActivity;
@@ -35,9 +40,8 @@ import com.the_mad_pillow.twitphone.twitter.TwitterUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import io.skyway.Peer.Browser.Navigator;
-import io.skyway.Peer.OnCallback;
-import io.skyway.Peer.Peer;
 import io.skyway.Peer.PeerOption;
 
 public class MainActivity extends AppCompatActivity {
@@ -45,8 +49,6 @@ public class MainActivity extends AppCompatActivity {
     private final String TAG = getClass().getSimpleName();
 
     private MyPeer peer;
-    //debug peerID表示
-    private String currentId;
 
     private SwipeRefreshLayout swipeRefreshLayout;
     private MyAdapter adapter;
@@ -54,6 +56,10 @@ public class MainActivity extends AppCompatActivity {
 
     private MyTwitter myTwitter;
 
+    //ListMenu開閉用のButtonの初期座標
+    private float defaultMenuSwitchingButtonX;
+
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,6 +89,23 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         myTwitter = new MyTwitter(this, handler);
+
+        final CircleImageView circleImageView = findViewById(R.id.circleImageView);
+        circleImageView.setTag(getResources().getInteger(R.integer.CLOSE));
+        circleImageView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                switchingListMenu(view);
+                return true;
+            }
+        });
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        if (defaultMenuSwitchingButtonX == 0) {
+            defaultMenuSwitchingButtonX = findViewById(R.id.circleImageView).getX();
+        }
     }
 
     @Override
@@ -91,6 +114,91 @@ public class MainActivity extends AppCompatActivity {
         if (peer != null) {
             peer.getPeer().disconnect();
         }
+    }
+
+    /**
+     * List並び替えMenuを開閉するAnimation
+     *
+     * @param target ListMenu開閉用のView デフォルトで右下に配置
+     */
+    private void switchingListMenu(final View target) {
+        if ((int) target.getTag() == getResources().getInteger(R.integer.MOVING)) {
+            return;
+        }
+
+        final FButton favoriteButton = findViewById(R.id.favoriteButton);
+        final FButton FFButton = findViewById(R.id.FFButton);
+        final FButton offlineButton = findViewById(R.id.offlineButton);
+
+        final int tempState = (int) target.getTag();
+        target.setTag(getResources().getInteger(R.integer.MOVING));
+
+        //移動設定
+        float SwitchButtonFromX = 0f;
+        float SwitchButtonToX = 0f;
+        float ButtonsFromX = 0f;
+        float ButtonsToX = 0f;
+        if (tempState == getResources().getInteger(R.integer.CLOSE)) {
+            SwitchButtonToX = -defaultMenuSwitchingButtonX + 30;
+            ButtonsFromX = findViewById(R.id.listMenuButtonLayout).getWidth();
+        } else {
+            SwitchButtonFromX = -defaultMenuSwitchingButtonX + 30;
+            ButtonsToX = findViewById(R.id.listMenuButtonLayout).getWidth();
+        }
+
+        //横移動
+        PropertyValuesHolder translationX = PropertyValuesHolder.ofFloat("translationX", SwitchButtonFromX, SwitchButtonToX);
+        PropertyValuesHolder ButtonsTranslationX = PropertyValuesHolder.ofFloat("translationX", ButtonsFromX, ButtonsToX);
+        // 回転
+        PropertyValuesHolder rotation = PropertyValuesHolder.ofFloat("rotation", 0f, 360f * tempState);
+
+        ObjectAnimator objectAnimator = ObjectAnimator.ofPropertyValuesHolder(
+                target, translationX, rotation);
+        ObjectAnimator objectAnimatorFavorite = ObjectAnimator.ofPropertyValuesHolder(
+                favoriteButton, ButtonsTranslationX);
+        ObjectAnimator objectAnimatorFF = ObjectAnimator.ofPropertyValuesHolder(
+                FFButton, ButtonsTranslationX);
+        objectAnimatorFF.setStartDelay(100);
+        ObjectAnimator objectAnimatorOffline = ObjectAnimator.ofPropertyValuesHolder(
+                offlineButton, ButtonsTranslationX);
+        objectAnimatorOffline.setStartDelay(200);
+
+        favoriteButton.setVisibility(View.VISIBLE);
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                FFButton.setVisibility(View.VISIBLE);
+            }
+        }, 100);
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                offlineButton.setVisibility(View.VISIBLE);
+            }
+        }, 200);
+
+        //アニメーション速度操作
+        objectAnimator.setInterpolator(new EasingInterpolator(Ease.QUAD_IN_OUT));
+        objectAnimator.setDuration(1000);
+        objectAnimatorFavorite.setInterpolator(new EasingInterpolator(Ease.QUAD_IN_OUT));
+        objectAnimatorFavorite.setDuration(1000);
+        objectAnimatorFF.setInterpolator(new EasingInterpolator(Ease.QUAD_IN_OUT));
+        objectAnimatorFF.setDuration(1000);
+        objectAnimatorOffline.setInterpolator(new EasingInterpolator(Ease.QUAD_IN_OUT));
+        objectAnimatorOffline.setDuration(1000);
+
+        // アニメーション実行
+        objectAnimator.start();
+        objectAnimatorFavorite.start();
+        objectAnimatorFF.start();
+        objectAnimatorOffline.start();
+
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                target.setTag(-tempState);
+            }
+        }, 1000);
     }
 
     /**
@@ -116,7 +224,27 @@ public class MainActivity extends AppCompatActivity {
             peer.getPeer().reconnect();
         }
 
-        // アイコンを指定
+        // MainToolbar
+        createMainToolbar();
+        //peerID List
+        createSwipeRefreshLayout();
+
+    }
+
+    public void createPeerId() {
+        //PeerID取得
+        PeerOption options = new PeerOption();
+        options.key = BuildConfig.SKYWAY_API_KEY;
+        options.domain = BuildConfig.SKYWAY_HOST;
+        options.turn = true;
+        peer = new MyPeer(this, myTwitter.getScreenName(), options);
+        Navigator.initialize(peer.getPeer());
+    }
+
+    /**
+     * MainToolbarの設定
+     */
+    public void createMainToolbar() {
         if (getSupportActionBar() != null) {
             RequestOptions requestOptions = new RequestOptions()
                     .override(getSupportActionBar().getHeight() * 3 / 4)
@@ -132,53 +260,6 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
         }
-
-        //peerID List
-        createSwipeRefreshLayout();
-
-        //debug 自分のpeerID表示
-        showCurrentPeerId();
-
-        //TODO ページTABにしてListを分ける
-        /*
-        ListView followListView = findViewById(R.id.followList);
-        UserListAdapter followListAdapter = new UserListAdapter(this, 0, myTwitter.getFollowList());
-        followListView.setAdapter(followListAdapter);
-
-
-        ListView followerListView = findViewById(R.id.followerList);
-        UserListAdapter followerListAdapter = new UserListAdapter(this, 0, myTwitter.getFollowerList());
-        followListView.setAdapter(followerListAdapter);
-
-        */
-    }
-
-    public void createPeerId() {
-        //PeerID取得
-        PeerOption options = new PeerOption();
-        options.key = BuildConfig.SKYWAY_API_KEY;
-        options.domain = BuildConfig.SKYWAY_HOST;
-        options.turn = true;
-        peer = new MyPeer(this, myTwitter.getScreenName(), options);
-        Navigator.initialize(peer.getPeer());
-    }
-
-    /**
-     * debug
-     */
-    private void showCurrentPeerId() {
-        peer.on(Peer.PeerEventEnum.OPEN, new OnCallback() {
-            @Override
-            public void onCallback(Object object) {
-                Log.d(TAG, "[On/Open]");
-
-                if (object instanceof String) {
-                    Log.d(TAG, "ID:" + object);
-                    currentId = (String) object;
-                    ((TextView) findViewById(R.id.debugTextView)).setText(currentId);
-                }
-            }
-        });
     }
 
     /**

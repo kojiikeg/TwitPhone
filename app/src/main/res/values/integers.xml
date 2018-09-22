@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <integer name="TwitterTask">0</integer>
+    <integer name="OPEN">1</integer>
+    <integer name="MOVING">0</integer>
+    <integer name="CLOSE">-1</integer>
 </resources>
