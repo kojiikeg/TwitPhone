@@ -12,16 +12,16 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.the_mad_pillow.twitphone.R;
+import com.the_mad_pillow.twitphone.twitter.MyUser;
 
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import twitter4j.User;
 
-public class UserListAdapter extends ArrayAdapter<User> {
+public class UserListAdapter extends ArrayAdapter<MyUser> {
     private LayoutInflater inflater;
 
-    UserListAdapter(@NonNull Context context, @LayoutRes int resource, @NonNull List<User> objects) {
+    public UserListAdapter(@NonNull Context context, @LayoutRes int resource, @NonNull List<MyUser> objects) {
         super(context, resource, objects);
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
@@ -36,16 +36,16 @@ public class UserListAdapter extends ArrayAdapter<User> {
             view = inflater.inflate(R.layout.user_list_item, parent, false);
         }
 
-        final User user = getItem(position);
-        if (user == null) {
+        final MyUser myUser = getItem(position);
+        if (myUser == null) {
             return view;
         }
 
         final CircleImageView imageView = view.findViewById(R.id.listItemUserImage);
         TextView textView = view.findViewById(R.id.listItemUserName);
 
-        Glide.with(view).load(user.get400x400ProfileImageURLHttps()).into(imageView);
-        textView.setText(user.getName());
+        Glide.with(view).load(myUser.getUser().get400x400ProfileImageURLHttps()).into(imageView);
+        textView.setText(myUser.getUser().getName());
 
         return view;
     }
