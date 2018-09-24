@@ -5,6 +5,9 @@ import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.skyway.Peer.Browser.MediaConstraints;
 import io.skyway.Peer.Browser.MediaStream;
 import io.skyway.Peer.Browser.Navigator;
@@ -66,34 +69,32 @@ public class MyPeer {
     }
 
     /**
-     * オンラインのpeerIDListのリロード
+     * Listのオンライン状態のリロード
      */
     public void refreshPeerList() {
         peer.listAllPeers(new OnCallback() {
             @Override
             public void onCallback(Object object) {
-                if (object instanceof JSONArray) {
-                    JSONArray array = (JSONArray) object;
-                    activity.getIdList().clear();
-                    for (int i = 0; i < array.length(); i++) {
-                        try {
-                            String id = array.getString(i);
-                            //自分のIDはListに表示しない
-                            if (!id.equals(activity.getMyTwitter().getScreenName())) {
-                                activity.getIdList().add(id);
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                List<String> peerList = new ArrayList<>();
+                for (int i = 0; i < ((JSONArray) object).length(); i++) {
+                    try {
+                        peerList.add(((JSONArray) object).getString(i));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                    activity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            activity.getAdapter().notifyDataSetChanged();
-                            activity.getSwipeRefreshLayout().setRefreshing(false);
-                        }
-                    });
                 }
+
+                for (int i = 0; i < activity.getMyTwitter().getFFList().size(); i++) {
+                    activity.getMyTwitter().getFFList().get(i)
+                            .setOnline(peerList.contains(activity.getMyTwitter().getFFList().get(i).getUser().getScreenName()));
+                }
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        activity.getAdapter().notifyDataSetChanged();
+                        activity.getSwipeRefreshLayout().setRefreshing(false);
+                    }
+                });
             }
         });
     }

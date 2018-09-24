@@ -34,13 +34,10 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.daasuu.ei.Ease;
 import com.daasuu.ei.EasingInterpolator;
-import com.the_mad_pillow.twitphone.adapters.MyAdapter;
+import com.the_mad_pillow.twitphone.adapters.UserListAdapter;
 import com.the_mad_pillow.twitphone.twitter.MyTwitter;
 import com.the_mad_pillow.twitphone.twitter.TwitterOAuthActivity;
 import com.the_mad_pillow.twitphone.twitter.TwitterUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.skyway.Peer.Browser.Navigator;
@@ -52,9 +49,8 @@ public class MainActivity extends AppCompatActivity {
 
     private MyPeer peer;
 
+    private UserListAdapter adapter;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private MyAdapter adapter;
-    private List<String> idList = new ArrayList<>();
 
     private MyTwitter myTwitter;
 
@@ -242,7 +238,6 @@ public class MainActivity extends AppCompatActivity {
         createMainToolbar();
         //peerID List
         createSwipeRefreshLayout();
-
     }
 
     public void createPeerId() {
@@ -282,7 +277,7 @@ public class MainActivity extends AppCompatActivity {
     public void createSwipeRefreshLayout() {
         //ListAdapter設定
         ListView listView = findViewById(R.id.listView);
-        adapter = new MyAdapter(this, 0, idList);
+        adapter = new UserListAdapter(this, R.layout.user_list_item, myTwitter.getFFList());
         listView.setAdapter(adapter);
 
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
@@ -301,7 +296,7 @@ public class MainActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String selectedPeerId = idList.get(i);
+                String selectedPeerId = myTwitter.getFFList().get(i).getUser().getScreenName();
                 if (selectedPeerId == null) {
                     Log.d(TAG, "Selected PeerId == null");
                     return;
@@ -366,15 +361,11 @@ public class MainActivity extends AppCompatActivity {
         return swipeRefreshLayout;
     }
 
-    public MyAdapter getAdapter() {
-        return adapter;
-    }
-
-    public List<String> getIdList() {
-        return idList;
-    }
-
     public MyTwitter getMyTwitter() {
         return myTwitter;
+    }
+
+    public UserListAdapter getAdapter() {
+        return adapter;
     }
 }
