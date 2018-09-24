@@ -6,7 +6,7 @@ public class MyUser {
     private User user;
     private boolean online = false;
 
-    private MyUser(User user) {
+    MyUser(User user) {
         this.user = user;
     }
 

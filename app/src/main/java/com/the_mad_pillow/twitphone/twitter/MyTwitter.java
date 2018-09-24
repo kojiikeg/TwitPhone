@@ -27,6 +27,7 @@ public class MyTwitter {
     private String screenName;
     private String profileImageBigger;
     private String profileImage400;
+    private List<MyUser> FFList;
     private List<User> followList;
     private List<User> followerList;
 
@@ -200,5 +201,37 @@ public class MyTwitter {
 
     public List<User> getFollowerList() {
         return followList;
+    }
+
+    public List<MyUser> getFFList() {
+        if (FFList == null) {
+            FFList = new ArrayList<>();
+
+            for (Object user : overlapList(followList, followerList)) {
+                FFList.add(new MyUser((User) user));
+            }
+        }
+
+        return FFList;
+    }
+
+    private List<?> overlapList(List<?> listA, List<?> listB) {
+        List<Object> list = new ArrayList<>();
+
+        if (listA.size() < listB.size()) {
+            for (Object obj : listA) {
+                if (listB.contains(obj)) {
+                    list.add(obj);
+                }
+            }
+        } else {
+            for (Object obj : listB) {
+                if (listA.contains(obj)) {
+                    list.add(obj);
+                }
+            }
+        }
+
+        return list;
     }
 }
