@@ -42,10 +42,19 @@ public class UserListAdapter extends ArrayAdapter<MyUser> {
         }
 
         final CircleImageView imageView = view.findViewById(R.id.listItemUserImage);
-        TextView textView = view.findViewById(R.id.listItemUserName);
+        final TextView nameText = view.findViewById(R.id.listItemUserName);
+        final TextView screenNameText = view.findViewById(R.id.listItemUserScreenName);
+        final CircleImageView statusView = view.findViewById(R.id.listItemUserStatus);
 
         Glide.with(view).load(myUser.getUser().get400x400ProfileImageURLHttps()).into(imageView);
-        textView.setText(myUser.getUser().getName());
+        nameText.setText(myUser.getUser().getName());
+        screenNameText.setText(inflater.getContext().getString(
+                R.string.screenName, myUser.getUser().getScreenName()));
+        if (myUser.isOnline()) {
+            statusView.setImageDrawable(inflater.getContext().getResources().getDrawable(R.drawable.ic_insert_emoticon_black_24dp));
+        } else {
+            statusView.setImageDrawable(inflater.getContext().getResources().getDrawable(R.drawable.ic_do_not_disturb_alt_black_24dp));
+        }
 
         return view;
     }
