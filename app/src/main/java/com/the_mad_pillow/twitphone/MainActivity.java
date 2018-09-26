@@ -79,13 +79,20 @@ public class MainActivity extends AppCompatActivity {
         Handler handler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
+                int getListCount = 0;
                 switch (msg.what) {
-                    case 0: //GetTwitterTask
+                    case 0: //getUserTask
                         showUI();
+                        break;
+                    case 1: //getListTask
+                        if (++getListCount == 2) {//follow & follower Task
+                            createSwipeRefreshLayout();
+                        }
                         break;
                 }
             }
         };
+
         myTwitter = new MyTwitter(this, handler);
 
         final CircleImageView circleImageView = findViewById(R.id.circleImageView);
@@ -236,8 +243,6 @@ public class MainActivity extends AppCompatActivity {
 
         // MainToolbar
         createMainToolbar();
-        //peerID List
-        createSwipeRefreshLayout();
     }
 
     public void createPeerId() {
@@ -246,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
         options.key = BuildConfig.SKYWAY_API_KEY;
         options.domain = BuildConfig.SKYWAY_HOST;
         options.turn = true;
-        peer = new MyPeer(this, myTwitter.getScreenName(), options);
+        peer = new MyPeer(this, myTwitter.getUser().getScreenName(), options);
         Navigator.initialize(peer.getPeer());
     }
 
@@ -259,7 +264,7 @@ public class MainActivity extends AppCompatActivity {
                     .override(getSupportActionBar().getHeight() * 3 / 4)
                     .circleCrop();
             Glide.with(this)
-                    .load(myTwitter.getProfileImage400())
+                    .load(myTwitter.getUser().get400x400ProfileImageURLHttps())
                     .apply(requestOptions)
                     .into(new SimpleTarget<Drawable>() {
                         @Override
