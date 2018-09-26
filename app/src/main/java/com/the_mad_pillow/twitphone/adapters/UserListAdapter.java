@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -44,7 +45,7 @@ public class UserListAdapter extends ArrayAdapter<MyUser> {
         final CircleImageView imageView = view.findViewById(R.id.listItemUserImage);
         final TextView nameText = view.findViewById(R.id.listItemUserName);
         final TextView screenNameText = view.findViewById(R.id.listItemUserScreenName);
-        final CircleImageView statusView = view.findViewById(R.id.listItemUserStatus);
+        final ImageView statusView = view.findViewById(R.id.listItemUserStatus);
 
         Glide.with(view).load(myUser.getUser().get400x400ProfileImageURLHttps()).into(imageView);
         nameText.setText(myUser.getUser().getName());
