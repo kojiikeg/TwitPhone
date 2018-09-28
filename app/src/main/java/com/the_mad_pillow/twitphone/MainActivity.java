@@ -20,6 +20,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -35,6 +36,7 @@ import com.bumptech.glide.request.transition.Transition;
 import com.daasuu.ei.Ease;
 import com.daasuu.ei.EasingInterpolator;
 import com.the_mad_pillow.twitphone.adapters.UserListAdapter;
+import com.the_mad_pillow.twitphone.listeners.MyGestureListener;
 import com.the_mad_pillow.twitphone.twitter.MyTwitter;
 import com.the_mad_pillow.twitphone.twitter.TwitterOAuthActivity;
 import com.the_mad_pillow.twitphone.twitter.TwitterUtils;
@@ -78,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
         @SuppressLint("HandlerLeak")
         Handler handler = new Handler() {
             int getListCount = 0;
+
             @Override
             public void handleMessage(Message msg) {
                 switch (msg.what) {
@@ -94,13 +97,13 @@ public class MainActivity extends AppCompatActivity {
         };
         myTwitter = new MyTwitter(this, handler);
 
-        final CircleImageView circleImageView = findViewById(R.id.circleImageView);
-        circleImageView.setTag(getResources().getInteger(R.integer.CLOSE));
-        circleImageView.setOnTouchListener(new View.OnTouchListener() {
+        final CircleImageView switchListMenuButton = findViewById(R.id.switchListMenuButton);
+        switchListMenuButton.setTag(getResources().getInteger(R.integer.CLOSE));
+        switchListMenuButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 view.performClick();
-                switchingListMenu(view);
+                switchingListMenu();
 
                 //HighLight
                 switch (motionEvent.getAction()) {
@@ -120,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         if (defaultMenuSwitchingButtonX == 0) {
-            defaultMenuSwitchingButtonX = findViewById(R.id.circleImageView).getX();
+            defaultMenuSwitchingButtonX = findViewById(R.id.switchListMenuButton).getX();
         }
     }
 
@@ -134,11 +137,10 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * List並び替えMenuを開閉するAnimation
-     *
-     * @param target ListMenu開閉用のView デフォルトで右下に配置
      */
-    private void switchingListMenu(final View target) {
-        if ((int) target.getTag() == getResources().getInteger(R.integer.MOVING)) {
+    public void switchingListMenu() {
+        final View switchingButton = findViewById(R.id.switchListMenuButton);
+        if ((int) switchingButton.getTag() == getResources().getInteger(R.integer.MOVING)) {
             return;
         }
 
@@ -146,8 +148,8 @@ public class MainActivity extends AppCompatActivity {
         final FButton FFButton = findViewById(R.id.FFButton);
         final FButton offlineButton = findViewById(R.id.offlineButton);
 
-        final int tempState = (int) target.getTag();
-        target.setTag(getResources().getInteger(R.integer.MOVING));
+        final int tempState = (int) switchingButton.getTag();
+        switchingButton.setTag(getResources().getInteger(R.integer.MOVING));
 
         //移動設定
         float SwitchButtonFromX = 0f;
@@ -169,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
         PropertyValuesHolder rotation = PropertyValuesHolder.ofFloat("rotation", 0f, 360f * tempState);
 
         ObjectAnimator objectAnimator = ObjectAnimator.ofPropertyValuesHolder(
-                target, translationX, rotation);
+                switchingButton, translationX, rotation);
         ObjectAnimator objectAnimatorFavorite = ObjectAnimator.ofPropertyValuesHolder(
                 favoriteButton, ButtonsTranslationX);
         ObjectAnimator objectAnimatorFF = ObjectAnimator.ofPropertyValuesHolder(
@@ -212,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
-                target.setTag(-tempState);
+                switchingButton.setTag(-tempState);
             }
         }, 1000);
     }
@@ -278,11 +280,15 @@ public class MainActivity extends AppCompatActivity {
     /**
      * ListViewの設定
      */
+    @SuppressLint("ClickableViewAccessibility")
     public void createSwipeRefreshLayout() {
         //ListAdapter設定
-        ListView listView = findViewById(R.id.listView);
+        final ListView listView = findViewById(R.id.listView);
         adapter = new UserListAdapter(this, R.layout.user_list_item, myTwitter.getFFList());
         listView.setAdapter(adapter);
+        final GestureDetector gestureDetector = new GestureDetector(this, new MyGestureListener(this, listView));
+        //listViewのTagをGestureListenerのスワイプされたかどうかのFlagとして利用する
+        listView.setTag(false);
 
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         // 色指定
@@ -300,13 +306,42 @@ public class MainActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String selectedPeerId = myTwitter.getFFList().get(i).getUser().getScreenName();
-                if (selectedPeerId == null) {
-                    Log.d(TAG, "Selected PeerId == null");
-                    return;
+                if (!(boolean) listView.getTag()
+                        && (int) findViewById(R.id.switchListMenuButton).getTag() == getResources().getInteger(R.integer.CLOSE)) {
+                    String selectedPeerId = myTwitter.getFFList().get(i).getUser().getScreenName();
+                    if (selectedPeerId == null) {
+                        Log.d(TAG, "Selected PeerId == null");
+                        return;
+                    }
+                    Log.d(TAG, "SelectedPeerId: " + selectedPeerId);
+                    peer.call(selectedPeerId);
                 }
-                Log.d(TAG, "SelectedPeerId: " + selectedPeerId);
-                peer.call(selectedPeerId);
+            }
+        });
+
+        listView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        //画面がタッチされたときの動作
+                        break;
+
+                    case MotionEvent.ACTION_MOVE:
+                        //タッチしたまま移動したときの動作
+                        break;
+
+                    case MotionEvent.ACTION_UP:
+                        //タッチが離されたときの動作
+                        break;
+
+                    case MotionEvent.ACTION_CANCEL:
+                        //他の要因によってタッチがキャンセルされたときの動作
+                        break;
+
+                }
+
+                return gestureDetector.onTouchEvent(event);
             }
         });
     }
