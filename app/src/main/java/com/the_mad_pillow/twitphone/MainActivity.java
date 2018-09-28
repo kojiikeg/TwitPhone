@@ -77,9 +77,9 @@ public class MainActivity extends AppCompatActivity {
         //非同期TaskのデータをUIThreadで処理するHandler
         @SuppressLint("HandlerLeak")
         Handler handler = new Handler() {
+            int getListCount = 0;
             @Override
             public void handleMessage(Message msg) {
-                int getListCount = 0;
                 switch (msg.what) {
                     case 0: //getUserTask
                         showUI();
@@ -92,7 +92,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         };
-
         myTwitter = new MyTwitter(this, handler);
 
         final CircleImageView circleImageView = findViewById(R.id.circleImageView);
