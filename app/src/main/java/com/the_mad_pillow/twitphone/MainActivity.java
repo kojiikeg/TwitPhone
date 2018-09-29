@@ -28,6 +28,8 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -86,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
                 switch (msg.what) {
                     case 0: //getUserTask
                         showUI();
+                        createLeftMenuUserProfile();
                         break;
                     case 1: //getListTask
                         if (++getListCount == 2) {//follow & follower Task
@@ -118,6 +121,30 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+    }
+
+    private void createLeftMenuUserProfile() {
+        //TODO set Profile's Background Image
+        final RelativeLayout header = findViewById(R.id.leftDrawerHeader);
+        final CircleImageView profileImage = findViewById(R.id.leftMenuImageView);
+        final TextView profileName = findViewById(R.id.leftMenuName);
+        final TextView profileID = findViewById(R.id.leftMenuID);
+
+        RequestOptions requestOptions = new RequestOptions()
+                .override(getSupportActionBar().getHeight() * 3 / 4)
+                .circleCrop();
+        Glide.with(this)
+                .load(myTwitter.getUser().get400x400ProfileImageURLHttps())
+                .apply(requestOptions)
+                .into(new SimpleTarget<Drawable>() {
+                    @Override
+                    public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
+                        profileImage.setImageDrawable(resource);
+                    }
+                });
+
+        profileName.setText(myTwitter.getUser().getName());
+        profileID.setText(getString(R.string.screenName, myTwitter.getUser().getScreenName()));
     }
 
     @Override
