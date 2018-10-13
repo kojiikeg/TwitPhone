@@ -133,10 +133,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createLeftMenuUserProfile() {
-        //TODO set Profile's Background Image
+        final RelativeLayout header = findViewById(R.id.leftDrawerHeader);
         final CircleImageView profileImage = findViewById(R.id.leftMenuImageView);
         final TextView profileName = findViewById(R.id.leftMenuName);
         final TextView profileID = findViewById(R.id.leftMenuID);
+
+        Glide.with(this)
+                .load(myTwitter.getUser().profileBannerUrl)
+                .into(new SimpleTarget<Drawable>() {
+                    @Override
+                    public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
+                        header.setBackground(resource);
+                    }
+                });
 
         if (getSupportActionBar() != null) {
             RequestOptions requestOptions = new RequestOptions()
