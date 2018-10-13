@@ -32,8 +32,7 @@
         android:textColor="@color/white"
         android:textSize="24sp" />
 
-    <Button
-        android:text="Twitterでログイン"
+    <com.twitter.sdk.android.core.identity.TwitterLoginButton
         android:id="@+id/homeButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
