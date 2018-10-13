@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/teal"
+    android:orientation="vertical"
+    tools:context=".HomeActivity">
+
+    <ImageView
+        android:id="@+id/homeImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center"
+        android:layout_margin="16dp"
+        android:src="@drawable/icon"
+        android:contentDescription="Home Image" />
+
+    <TextView
+        android:id="@+id/homeText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/homeImage"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_gravity="center"
+        android:layout_marginBottom="16dp"
+        android:fontFamily="monospace"
+        android:gravity="center"
+        android:text="@string/homeMessage"
+        android:textColor="@color/white"
+        android:textSize="24sp" />
+
+    <Button
+        android:text="Twitterでログイン"
+        android:id="@+id/homeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/homeText"
+        android:layout_centerHorizontal="true" />
+</RelativeLayout>
