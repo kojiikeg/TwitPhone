@@ -27,6 +27,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -37,7 +38,11 @@ import com.daasuu.ei.Ease;
 import com.daasuu.ei.EasingInterpolator;
 import com.the_mad_pillow.twitphone.adapters.UserListAdapter;
 import com.the_mad_pillow.twitphone.twitter.MyTwitter;
-import com.the_mad_pillow.twitphone.twitter.TwitterUtils;
+import com.twitter.sdk.android.core.DefaultLogger;
+import com.twitter.sdk.android.core.Twitter;
+import com.twitter.sdk.android.core.TwitterAuthConfig;
+import com.twitter.sdk.android.core.TwitterConfig;
+import com.twitter.sdk.android.core.TwitterCore;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.skyway.Peer.Browser.Navigator;
@@ -63,16 +68,23 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //ActionBar設定
-        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+        TwitterConfig config = new TwitterConfig.Builder(this)
+                .logger(new DefaultLogger(Log.DEBUG))
+                .twitterAuthConfig(new TwitterAuthConfig(BuildConfig.TWITTER_API_KEY, BuildConfig.TWITTER_API_SECRET))
+                .debug(true)
+                .build();
+        Twitter.initialize(config);
 
-        //TwitterAccessTokenCheck
-        if (!TwitterUtils.hasAccessToken(this)) {
+        //Twitter認証チェック
+        if (TwitterCore.getInstance().getSessionManager().getActiveSession() == null) {
             Intent intent = new Intent(getApplication(), HomeActivity.class);
             startActivity(intent);
             finish();
             return;
         }
+
+        //ActionBar設定
+        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
         //非同期TaskのデータをUIThreadで処理するHandler
         @SuppressLint("HandlerLeak")
@@ -94,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         };
+
         myTwitter = new MyTwitter(this, handler);
 
         final CircleImageView switchListMenuButton = findViewById(R.id.switchListMenuButton);
@@ -130,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
                     .override(getSupportActionBar().getHeight() * 3 / 4)
                     .circleCrop();
             Glide.with(this)
-                    .load(myTwitter.getUser().get400x400ProfileImageURLHttps())
+                    .load(myTwitter.getUser().profileImageUrlHttps)
                     .apply(requestOptions)
                     .into(new SimpleTarget<Drawable>() {
                         @Override
@@ -139,8 +152,8 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
         }
-        profileName.setText(myTwitter.getUser().getName());
-        profileID.setText(getString(R.string.screenName, myTwitter.getUser().getScreenName()));
+        profileName.setText(myTwitter.getUser().name);
+        profileID.setText(getString(R.string.screenName, myTwitter.getUser().screenName));
     }
 
     @Override
@@ -275,7 +288,7 @@ public class MainActivity extends AppCompatActivity {
         options.key = BuildConfig.SKYWAY_API_KEY;
         options.domain = BuildConfig.SKYWAY_HOST;
         options.turn = true;
-        peer = new MyPeer(this, myTwitter.getUser().getScreenName(), options);
+        peer = new MyPeer(this, myTwitter.getUser().screenName, options);
         Navigator.initialize(peer.getPeer());
     }
 
@@ -288,7 +301,7 @@ public class MainActivity extends AppCompatActivity {
                     .override(getSupportActionBar().getHeight() * 3 / 4)
                     .circleCrop();
             Glide.with(this)
-                    .load(myTwitter.getUser().get400x400ProfileImageURLHttps())
+                    .load(myTwitter.getUser().profileImageUrlHttps)
                     .apply(requestOptions)
                     .into(new SimpleTarget<Drawable>() {
                         @Override
@@ -328,7 +341,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 if ((int) findViewById(R.id.switchListMenuButton).getTag() == getResources().getInteger(R.integer.CLOSE)) {
-                    String selectedPeerId = myTwitter.getFFList().get(i).getUser().getScreenName();
+                    String selectedPeerId = myTwitter.getFFList().get(i).getUser().screenName;
                     if (selectedPeerId == null) {
                         Log.d(TAG, "Selected PeerId == null");
                         return;

@@ -1,124 +1,98 @@
 package com.the_mad_pillow.twitphone.twitter;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.widget.Toast;
 
 import com.the_mad_pillow.twitphone.R;
+import com.twitter.sdk.android.core.Callback;
+import com.twitter.sdk.android.core.Result;
+import com.twitter.sdk.android.core.TwitterCore;
+import com.twitter.sdk.android.core.TwitterException;
+import com.twitter.sdk.android.core.models.User;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import twitter4j.PagableResponseList;
-import twitter4j.Twitter;
-import twitter4j.TwitterException;
-import twitter4j.User;
-
 public class MyTwitter {
     private Context activity;
     private Handler handler;
-    private Twitter twitter;
+    private MyTwitterApiClient myTwitterApiClient;
     private User user;
     private List<MyUser> FFList;
-    private List<User> followList;
+    private List<User> friendList;
     private List<User> followerList;
 
-    @SuppressLint("HandlerLeak")
     public MyTwitter(Context context, final Handler handler) {
         activity = context;
         this.handler = handler;
-        twitter = TwitterUtils.getTwitterInstance(context);
+        myTwitterApiClient = new MyTwitterApiClient(
+                TwitterCore.getInstance().getSessionManager().getActiveSession());
 
-        //Userの取得
+        friendList = new ArrayList<>();
+        followerList = new ArrayList<>();
+
         initGetUser();
+        initGetFriendList(-1);
+        initGetFollowerList(-1);
     }
 
-    @SuppressLint("StaticFieldLeak")
     private void initGetUser() {
-        new AsyncTask<Void, Void, Void>() {
+        myTwitterApiClient.getAccountService().verifyCredentials(true, true, true).enqueue(new Callback<User>() {
             @Override
-            protected Void doInBackground(Void... voids) {
-                try {
-                    user = twitter.verifyCredentials();
-                    return null;
-                } catch (TwitterException e) {
-                    throw new RuntimeException("Userの取得に失敗");
-                }
-            }
-
-            @Override
-            protected void onPostExecute(Void result) {
+            public void success(Result<User> result) {
+                user = result.data;
                 handler.sendEmptyMessage(activity.getResources().getInteger(R.integer.getUserTask));
-
-                initGetFollow();
-                initGetFollower();
             }
-        }.execute();
+
+            @Override
+            public void failure(TwitterException exception) {
+                finish();
+            }
+        });
     }
 
-    @SuppressLint("StaticFieldLeak")
-    private void initGetFollow() {
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
-                followList = new ArrayList<>();
-                try {
-                    long cursor = -1;
-                    int count = 0;
-                    while (cursor != 0 && count < 15) {
-                        PagableResponseList<User> pagableResponseList = twitter.getFriendsList(user.getScreenName(), cursor, 200);
-                        followList.addAll(pagableResponseList);
-
-                        cursor = pagableResponseList.getNextCursor();
-                        count++;
+    private void initGetFriendList(long cursor) {
+        myTwitterApiClient.getCustomTwitterService()
+                .getFriendList(TwitterCore.getInstance().getSessionManager().getActiveSession().getUserId(), cursor, 200)
+                .enqueue(new Callback<FriendsResponseModel>() {
+                    @Override
+                    public void success(Result<FriendsResponseModel> result) {
+                        friendList.addAll(result.data.getResults());
+                        if (result.data.getNextCursor() != 0) {
+                            initGetFriendList(result.data.getNextCursor());
+                        } else {
+                            handler.sendEmptyMessage(activity.getResources().getInteger(R.integer.getListTask));
+                        }
                     }
-                } catch (TwitterException e) {
-                    e.printStackTrace();
-                    finish();
-                }
 
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void result) {
-                handler.sendEmptyMessage(activity.getResources().getInteger(R.integer.getListTask));
-            }
-        }.execute();
+                    @Override
+                    public void failure(TwitterException exception) {
+                        finish();
+                    }
+                });
     }
 
-    @SuppressLint("StaticFieldLeak")
-    private void initGetFollower() {
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
-                followerList = new ArrayList<>();
-                try {
-                    long cursor = -1;
-                    int count = 0;
-                    while (cursor != 0 && count < 15) {
-                        PagableResponseList<User> pagableResponseList = twitter.getFollowersList(user.getScreenName(), cursor, 200);
-                        followerList.addAll(pagableResponseList);
-
-                        cursor = pagableResponseList.getNextCursor();
-                        count++;
+    private void initGetFollowerList(long cursor) {
+        myTwitterApiClient.getCustomTwitterService()
+                .getFollowerList(TwitterCore.getInstance().getSessionManager().getActiveSession().getUserId(), cursor, 200)
+                .enqueue(new Callback<FriendsResponseModel>() {
+                    @Override
+                    public void success(Result<FriendsResponseModel> result) {
+                        followerList.addAll(result.data.getResults());
+                        if (result.data.getNextCursor() != 0) {
+                            initGetFollowerList(result.data.getNextCursor());
+                        } else {
+                            handler.sendEmptyMessage(activity.getResources().getInteger(R.integer.getListTask));
+                        }
                     }
-                } catch (TwitterException e) {
-                    e.printStackTrace();
-                    finish();
-                }
 
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void result) {
-                handler.sendEmptyMessage(activity.getResources().getInteger(R.integer.getListTask));
-            }
-        }.execute();
+                    @Override
+                    public void failure(TwitterException exception) {
+                        finish();
+                    }
+                });
     }
 
     /**
@@ -136,39 +110,24 @@ public class MyTwitter {
         });
     }
 
-    public List<User> getFollowList() {
-        return followList;
-    }
-
-    public List<User> getFollowerList() {
-        return followList;
-    }
-
     public List<MyUser> getFFList() {
         if (FFList == null) {
             FFList = new ArrayList<>();
 
-            for (Object user : overlapList(followList, followerList)) {
+            for (Object user : overlapList(friendList, followerList)) {
                 FFList.add(new MyUser((User) user));
             }
         }
-
         return FFList;
     }
 
-    private List<?> overlapList(List<?> listA, List<?> listB) {
-        List<Object> list = new ArrayList<>();
+    private List<User> overlapList(List<User> listA, List<User> listB) {
+        List<User> list = new ArrayList<>();
 
-        if (listA.size() < listB.size()) {
-            for (Object obj : listA) {
-                if (listB.contains(obj)) {
-                    list.add(obj);
-                }
-            }
-        } else {
-            for (Object obj : listB) {
-                if (listA.contains(obj)) {
-                    list.add(obj);
+        for (User userA : listA) {
+            for (User userB : listB) {
+                if (userA.id == userB.id) {
+                    list.add(userA);
                 }
             }
         }

@@ -86,7 +86,7 @@ public class MyPeer {
 
                 for (int i = 0; i < activity.getMyTwitter().getFFList().size(); i++) {
                     activity.getMyTwitter().getFFList().get(i)
-                            .setOnline(peerList.contains(activity.getMyTwitter().getFFList().get(i).getUser().getScreenName()));
+                            .setOnline(peerList.contains(activity.getMyTwitter().getFFList().get(i).getUser().screenName));
                 }
                 activity.runOnUiThread(new Runnable() {
                     @Override
