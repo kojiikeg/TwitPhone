@@ -3,4 +3,5 @@
     <string name="twitter_callback_url">twitphone://</string>
     <string name="screenName">\@%s</string>
     <string name="CannotReloadImage">Can\'t Reload Image</string>
+    <string name="homeMessage">インストール\nありがとうございます\n\nまずはTwitterアカウントでの ログイン・認証\nお願いします</string>
 </resources>

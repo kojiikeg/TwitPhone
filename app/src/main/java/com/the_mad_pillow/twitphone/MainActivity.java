@@ -37,7 +37,6 @@ import com.daasuu.ei.Ease;
 import com.daasuu.ei.EasingInterpolator;
 import com.the_mad_pillow.twitphone.adapters.UserListAdapter;
 import com.the_mad_pillow.twitphone.twitter.MyTwitter;
-import com.the_mad_pillow.twitphone.twitter.TwitterOAuthActivity;
 import com.the_mad_pillow.twitphone.twitter.TwitterUtils;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -68,11 +67,11 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
         //TwitterAccessTokenCheck
-        //TODO ボタンでのログインに変更する
         if (!TwitterUtils.hasAccessToken(this)) {
-            Intent intent = new Intent(getApplication(), TwitterOAuthActivity.class);
+            Intent intent = new Intent(getApplication(), HomeActivity.class);
             startActivity(intent);
             finish();
+            return;
         }
 
         //非同期TaskのデータをUIThreadで処理するHandler

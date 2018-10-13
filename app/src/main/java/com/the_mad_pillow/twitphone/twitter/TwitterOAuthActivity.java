@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.the_mad_pillow.twitphone.HomeActivity;
 import com.the_mad_pillow.twitphone.MainActivity;
 import com.the_mad_pillow.twitphone.R;
 
@@ -97,10 +98,20 @@ public class TwitterOAuthActivity extends AppCompatActivity {
                 if (accessToken != null) {
                     showToast("認証しました");
                     successOAuth(accessToken);
-                    exitIntent();
+
+                    //MainActivityへ遷移
+                    Intent intent = new Intent(TwitterOAuthActivity.this, MainActivity.class);
+                    startActivity(intent);
                 } else {
                     showToast("認証に失敗しました");
+
+                    //HomeActivityへ遷移
+                    Intent intent = new Intent(TwitterOAuthActivity.this, HomeActivity.class);
+                    startActivity(intent);
                 }
+
+                //このActivityを終了
+                finish();
             }
         }.execute(verifier);
     }
