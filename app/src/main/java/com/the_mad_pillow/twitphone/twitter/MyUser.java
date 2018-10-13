@@ -1,6 +1,7 @@
 package com.the_mad_pillow.twitphone.twitter;
 
-import twitter4j.User;
+
+import com.twitter.sdk.android.core.models.User;
 
 public class MyUser {
     private User user;
