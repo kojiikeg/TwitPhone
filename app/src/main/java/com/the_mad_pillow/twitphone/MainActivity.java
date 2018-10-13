@@ -20,7 +20,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -28,7 +27,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -38,7 +36,6 @@ import com.bumptech.glide.request.transition.Transition;
 import com.daasuu.ei.Ease;
 import com.daasuu.ei.EasingInterpolator;
 import com.the_mad_pillow.twitphone.adapters.UserListAdapter;
-import com.the_mad_pillow.twitphone.listeners.MyGestureListener;
 import com.the_mad_pillow.twitphone.twitter.MyTwitter;
 import com.the_mad_pillow.twitphone.twitter.TwitterOAuthActivity;
 import com.the_mad_pillow.twitphone.twitter.TwitterUtils;
@@ -125,24 +122,24 @@ public class MainActivity extends AppCompatActivity {
 
     private void createLeftMenuUserProfile() {
         //TODO set Profile's Background Image
-        final RelativeLayout header = findViewById(R.id.leftDrawerHeader);
         final CircleImageView profileImage = findViewById(R.id.leftMenuImageView);
         final TextView profileName = findViewById(R.id.leftMenuName);
         final TextView profileID = findViewById(R.id.leftMenuID);
 
-        RequestOptions requestOptions = new RequestOptions()
-                .override(getSupportActionBar().getHeight() * 3 / 4)
-                .circleCrop();
-        Glide.with(this)
-                .load(myTwitter.getUser().get400x400ProfileImageURLHttps())
-                .apply(requestOptions)
-                .into(new SimpleTarget<Drawable>() {
-                    @Override
-                    public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
-                        profileImage.setImageDrawable(resource);
-                    }
-                });
-
+        if (getSupportActionBar() != null) {
+            RequestOptions requestOptions = new RequestOptions()
+                    .override(getSupportActionBar().getHeight() * 3 / 4)
+                    .circleCrop();
+            Glide.with(this)
+                    .load(myTwitter.getUser().get400x400ProfileImageURLHttps())
+                    .apply(requestOptions)
+                    .into(new SimpleTarget<Drawable>() {
+                        @Override
+                        public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
+                            profileImage.setImageDrawable(resource);
+                        }
+                    });
+        }
         profileName.setText(myTwitter.getUser().getName());
         profileID.setText(getString(R.string.screenName, myTwitter.getUser().getScreenName()));
     }
@@ -313,9 +310,7 @@ public class MainActivity extends AppCompatActivity {
         final ListView listView = findViewById(R.id.listView);
         adapter = new UserListAdapter(this, R.layout.user_list_item, myTwitter.getFFList());
         listView.setAdapter(adapter);
-        final GestureDetector gestureDetector = new GestureDetector(this, new MyGestureListener(this, listView));
         //listViewのTagをGestureListenerのスワイプされたかどうかのFlagとして利用する
-        listView.setTag(false);
 
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         // 色指定
@@ -333,8 +328,7 @@ public class MainActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                if (!(boolean) listView.getTag()
-                        && (int) findViewById(R.id.switchListMenuButton).getTag() == getResources().getInteger(R.integer.CLOSE)) {
+                if ((int) findViewById(R.id.switchListMenuButton).getTag() == getResources().getInteger(R.integer.CLOSE)) {
                     String selectedPeerId = myTwitter.getFFList().get(i).getUser().getScreenName();
                     if (selectedPeerId == null) {
                         Log.d(TAG, "Selected PeerId == null");
@@ -343,32 +337,6 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "SelectedPeerId: " + selectedPeerId);
                     peer.call(selectedPeerId);
                 }
-            }
-        });
-
-        listView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        //画面がタッチされたときの動作
-                        break;
-
-                    case MotionEvent.ACTION_MOVE:
-                        //タッチしたまま移動したときの動作
-                        break;
-
-                    case MotionEvent.ACTION_UP:
-                        //タッチが離されたときの動作
-                        break;
-
-                    case MotionEvent.ACTION_CANCEL:
-                        //他の要因によってタッチがキャンセルされたときの動作
-                        break;
-
-                }
-
-                return gestureDetector.onTouchEvent(event);
             }
         });
     }
