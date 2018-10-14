@@ -83,6 +83,9 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        //API23以降のAndroidに必要な権限認証
+        checkAudioPermission();
+
         //ActionBar設定
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
@@ -100,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case 1: //getListTask
                         if (++getListCount == 2) {//follow & follower Task
-                            createSwipeRefreshLayout();
+                             createSwipeRefreshLayout();
                         }
                         break;
                 }
@@ -109,6 +112,11 @@ public class MainActivity extends AppCompatActivity {
 
         myTwitter = new MyTwitter(this, handler);
 
+        createSwitchListMenu();
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private void createSwitchListMenu() {
         final CircleImageView switchListMenuButton = findViewById(R.id.switchListMenuButton);
         switchListMenuButton.setTag(getResources().getInteger(R.integer.CLOSE));
         switchListMenuButton.setOnTouchListener(new View.OnTouchListener() {
@@ -373,7 +381,7 @@ public class MainActivity extends AppCompatActivity {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.RECORD_AUDIO)) {
                 Log.d(TAG, "shouldShowRequestPermissionRationale = false");
-                // Show an expanation to the user *asynchronously* -- don't block
+                // Show an explanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
             } else {
