@@ -4,9 +4,11 @@ import android.Manifest;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -24,6 +26,7 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -358,13 +361,20 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 if ((int) findViewById(R.id.switchListMenuButton).getTag() == getResources().getInteger(R.integer.CLOSE)) {
-                    String selectedPeerId = myTwitter.getFFList().get(i).getUser().screenName;
-                    if (selectedPeerId == null) {
-                        Log.d(TAG, "Selected PeerId == null");
-                        return;
-                    }
-                    Log.d(TAG, "SelectedPeerId: " + selectedPeerId);
-                    peer.call(selectedPeerId);
+                    Dialog showMenuDialog = new Dialog(MainActivity.this);
+                    showMenuDialog.setContentView(R.layout.list_menu);
+                    final CircleImageView image = showMenuDialog.findViewById(R.id.listMenuImage);
+                    Glide.with(MainActivity.this)
+                            .load(myTwitter.getFFList().get(i).getUser().profileImageUrlHttps)
+                            .into(new SimpleTarget<Drawable>() {
+                                @Override
+                                public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
+                                    image.setImageDrawable(resource);
+                                }
+                            });
+                    showMenuDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                    showMenuDialog.show();
+
                 }
             }
         });
