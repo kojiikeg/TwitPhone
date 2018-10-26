@@ -375,8 +375,10 @@ public class MainActivity extends AppCompatActivity {
                                     image.setImageDrawable(resource);
                                 }
                             });
-                    
-                    showMenuDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+                    if (showMenuDialog.getWindow() != null) {
+                        showMenuDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                    }
                     showMenuDialog.show();
 
                 }
