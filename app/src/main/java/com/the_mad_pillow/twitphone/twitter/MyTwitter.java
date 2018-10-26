@@ -21,6 +21,7 @@ public class MyTwitter {
     private MyTwitterApiClient myTwitterApiClient;
     private User user;
     private List<MyUser> FFList;
+    private List<MyUser> listViewList;
     private List<User> friendList;
     private List<User> followerList;
 
@@ -119,6 +120,18 @@ public class MyTwitter {
             }
         }
         return FFList;
+    }
+
+    public void setListViewList(List<MyUser> list) {
+        listViewList = list;
+    }
+
+    public List<MyUser> getListViewList(){
+        if(listViewList == null){
+            listViewList = getFFList();
+        }
+
+        return listViewList;
     }
 
     private List<User> overlapList(List<User> listA, List<User> listB) {

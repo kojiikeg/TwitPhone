@@ -34,7 +34,7 @@ public class UserListAdapter extends ArrayAdapter<MyUser> {
         if (convertView == null) {
             view = inflater.inflate(R.layout.user_list_item, parent, false);
         } else {
-            view = inflater.inflate(R.layout.user_list_item, parent, false);
+            view = convertView;
         }
 
         final MyUser myUser = getItem(position);
