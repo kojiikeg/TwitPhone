@@ -26,7 +26,6 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -41,11 +40,14 @@ import com.daasuu.ei.Ease;
 import com.daasuu.ei.EasingInterpolator;
 import com.the_mad_pillow.twitphone.adapters.UserListAdapter;
 import com.the_mad_pillow.twitphone.twitter.MyTwitter;
+import com.the_mad_pillow.twitphone.twitter.MyUser;
 import com.twitter.sdk.android.core.DefaultLogger;
 import com.twitter.sdk.android.core.Twitter;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
 import com.twitter.sdk.android.core.TwitterConfig;
 import com.twitter.sdk.android.core.TwitterCore;
+
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.skyway.Peer.Browser.Navigator;
@@ -106,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case 1: //getListTask
                         if (++getListCount == 2) {//follow & follower Task
-                             createSwipeRefreshLayout();
+                            createSwipeRefreshLayout();
                         }
                         break;
                 }
@@ -116,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
         myTwitter = new MyTwitter(this, handler);
 
         createSwitchListMenu();
+        initSortButton();
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -340,7 +343,7 @@ public class MainActivity extends AppCompatActivity {
     public void createSwipeRefreshLayout() {
         //ListAdapter設定
         final ListView listView = findViewById(R.id.listView);
-        adapter = new UserListAdapter(this, R.layout.user_list_item, myTwitter.getFFList());
+        adapter = new UserListAdapter(this, R.layout.user_list_item, myTwitter.getListViewList());
         listView.setAdapter(adapter);
         //listViewのTagをGestureListenerのスワイプされたかどうかのFlagとして利用する
 
@@ -372,12 +375,63 @@ public class MainActivity extends AppCompatActivity {
                                     image.setImageDrawable(resource);
                                 }
                             });
+                    
                     showMenuDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                     showMenuDialog.show();
 
                 }
             }
         });
+    }
+
+    private void initSortButton() {
+        FButton favoriteBtn = findViewById(R.id.favoriteButton);
+        FButton FFBtn = findViewById(R.id.FFButton);
+        FButton offlineBtn = findViewById(R.id.offlineButton);
+
+        favoriteBtn.setTag(true);
+        FFBtn.setTag(true);
+        offlineBtn.setTag(true);
+
+        favoriteBtn.setOnClickListener(sortButtonClick);
+        FFBtn.setOnClickListener(sortButtonClick);
+        offlineBtn.setOnClickListener(sortButtonClick);
+    }
+
+    View.OnClickListener sortButtonClick = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            view.setTag(!(boolean) view.getTag());
+
+            //TODO
+            //change color
+
+            sortListView();
+        }
+    };
+
+    private void sortListView() {
+        FButton favoriteBtn = findViewById(R.id.favoriteButton);
+        FButton FFBtn = findViewById(R.id.FFButton);
+        FButton offlineBtn = findViewById(R.id.offlineButton);
+
+        peer.refreshPeerList();
+
+        List<MyUser> list = myTwitter.getFFList();
+        for (MyUser user : list) {
+            if (!(boolean) favoriteBtn.getTag()) {
+                if (user.isFavorite()) {
+                    list.remove(user);
+                }
+            }
+            if (!(boolean) offlineBtn.getTag()) {
+                if (!user.isOnline()) {
+                    list.remove(user);
+                }
+            }
+        }
+
+        myTwitter.setListViewList(list);
     }
 
     /**
