@@ -2,6 +2,8 @@ package com.the_mad_pillow.twitphone;
 
 import android.util.Log;
 
+import com.the_mad_pillow.twitphone.twitter.MyUser;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -84,9 +86,8 @@ public class MyPeer {
                     }
                 }
 
-                for (int i = 0; i < activity.getMyTwitter().getFFList().size(); i++) {
-                    activity.getMyTwitter().getFFList().get(i)
-                            .setOnline(peerList.contains(activity.getMyTwitter().getFFList().get(i).getUser().screenName));
+                for (MyUser user : activity.getMyTwitter().getFFList()) {
+                    user.setOnline(peerList.contains(user.getUser().screenName));
                 }
                 activity.runOnUiThread(new Runnable() {
                     @Override
