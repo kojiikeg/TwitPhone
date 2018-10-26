@@ -386,20 +386,28 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Sortの設定を保存するFButtonのクリック処理の初期設定
+     */
     private void initSortButton() {
+        //FButtonの取得
         FButton favoriteBtn = findViewById(R.id.favoriteButton);
         FButton FFBtn = findViewById(R.id.FFButton);
         FButton offlineBtn = findViewById(R.id.offlineButton);
 
+        //初期状態はtrue
+        //TODO 内部データから読み込み
         favoriteBtn.setTag(true);
         FFBtn.setTag(true);
         offlineBtn.setTag(true);
 
+        //ClickListenerの設定
         favoriteBtn.setOnClickListener(sortButtonClick);
         FFBtn.setOnClickListener(sortButtonClick);
         offlineBtn.setOnClickListener(sortButtonClick);
     }
 
+    //sort用のFButtonのクリック時の処理
     View.OnClickListener sortButtonClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -408,17 +416,24 @@ public class MainActivity extends AppCompatActivity {
             //TODO
             //change color
 
+            //クリック時にsortを行う
             sortListView();
         }
     };
 
+    /**
+     * ListViewのソートを行う
+     */
     private void sortListView() {
+        //FButtonの取得
         FButton favoriteBtn = findViewById(R.id.favoriteButton);
         FButton FFBtn = findViewById(R.id.FFButton);
         FButton offlineBtn = findViewById(R.id.offlineButton);
 
+        //一度オンライン状態の更新のためrefresh
         peer.refreshPeerList();
 
+        //それぞれの設定を元にlistに格納
         List<MyUser> list = myTwitter.getFFList();
         for (MyUser user : list) {
             if (!(boolean) favoriteBtn.getTag()) {
@@ -433,6 +448,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        //ListViewへlistを反映
         myTwitter.setListViewList(list);
     }
 
