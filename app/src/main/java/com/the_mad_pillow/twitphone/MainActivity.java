@@ -22,13 +22,13 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.AdapterView;
+import android.widget.ExpandableListView;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -38,7 +38,7 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.daasuu.ei.Ease;
 import com.daasuu.ei.EasingInterpolator;
-import com.the_mad_pillow.twitphone.adapters.UserListAdapter;
+import com.the_mad_pillow.twitphone.adapters.ExpandableAdapter;
 import com.the_mad_pillow.twitphone.twitter.MyTwitter;
 import com.the_mad_pillow.twitphone.twitter.MyUser;
 import com.twitter.sdk.android.core.DefaultLogger;
@@ -47,11 +47,13 @@ import com.twitter.sdk.android.core.TwitterAuthConfig;
 import com.twitter.sdk.android.core.TwitterConfig;
 import com.twitter.sdk.android.core.TwitterCore;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.skyway.Peer.Browser.Navigator;
 import io.skyway.Peer.PeerOption;
+import lombok.Getter;
 
 public class MainActivity extends AppCompatActivity {
     private static final int RECORD_AUDIO_REQUEST_ID = 1;
@@ -59,7 +61,9 @@ public class MainActivity extends AppCompatActivity {
 
     private MyPeer peer;
 
-    private UserListAdapter adapter;
+    @Getter
+    private ExpandableAdapter adapter;
+
     private SwipeRefreshLayout swipeRefreshLayout;
 
     private MyTwitter myTwitter;
@@ -341,11 +345,21 @@ public class MainActivity extends AppCompatActivity {
      */
     @SuppressLint("ClickableViewAccessibility")
     public void createSwipeRefreshLayout() {
-        //ListAdapter設定
-        final ListView listView = findViewById(R.id.listView);
-        adapter = new UserListAdapter(this, R.layout.user_list_item, myTwitter.getListViewList());
-        listView.setAdapter(adapter);
-        //listViewのTagをGestureListenerのスワイプされたかどうかのFlagとして利用する
+        List<String> groups = new ArrayList<>();
+        groups.add("お気に入り");
+        groups.add("オンライン");
+        groups.add("全て");
+        SparseArray<List<MyUser>> children = new SparseArray<>();
+        children.put(0, new ArrayList<MyUser>());
+        children.put(1, new ArrayList<MyUser>());
+        children.put(2, myTwitter.getFFList());
+
+        ExpandableListView expandableListView = findViewById(R.id.FFExpandableListView);
+        adapter = new ExpandableAdapter(this, groups, children);
+        expandableListView.setAdapter(adapter);
+        expandableListView.expandGroup(0);
+        expandableListView.expandGroup(1);
+        expandableListView.expandGroup(2);
 
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         // 色指定
@@ -360,9 +374,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //Listクリック時の動作設定
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i1, long l) {
                 if ((int) findViewById(R.id.switchListMenuButton).getTag() == getResources().getInteger(R.integer.CLOSE)) {
                     Dialog showMenuDialog = new Dialog(MainActivity.this);
                     showMenuDialog.setContentView(R.layout.list_menu);
@@ -382,6 +396,8 @@ public class MainActivity extends AppCompatActivity {
                     showMenuDialog.show();
 
                 }
+
+                return true;
             }
         });
     }
@@ -508,9 +524,5 @@ public class MainActivity extends AppCompatActivity {
 
     public MyTwitter getMyTwitter() {
         return myTwitter;
-    }
-
-    public UserListAdapter getAdapter() {
-        return adapter;
     }
 }
