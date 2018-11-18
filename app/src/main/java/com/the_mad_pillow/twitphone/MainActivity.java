@@ -340,18 +340,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * ListViewの設定
-     */
-    @SuppressLint("ClickableViewAccessibility")
-    public void createSwipeRefreshLayout() {
+    public void createExpandableListView() {
         List<String> groups = new ArrayList<>();
         groups.add("お気に入り");
         groups.add("オンライン");
         groups.add("全て");
         SparseArray<List<MyUser>> children = new SparseArray<>();
-        children.put(0, new ArrayList<MyUser>());
-        children.put(1, new ArrayList<MyUser>());
+        children.put(0, myTwitter.getFavoriteList(false));
+        children.put(1, myTwitter.getOnlineList(false));
         children.put(2, myTwitter.getFFList());
 
         ExpandableListView expandableListView = findViewById(R.id.FFExpandableListView);
@@ -361,17 +357,6 @@ public class MainActivity extends AppCompatActivity {
         expandableListView.expandGroup(1);
         expandableListView.expandGroup(2);
 
-        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
-        // 色指定
-        swipeRefreshLayout.setColorSchemeResources(R.color.blue, R.color.lightBlue);
-
-        //スワイプ時の動作設定
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                peer.refreshPeerList();
-            }
-        });
 
         //Listクリック時の動作設定
         expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
@@ -398,6 +383,26 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 return true;
+            }
+        });
+    }
+
+    /**
+     * ListViewの設定
+     */
+    @SuppressLint("ClickableViewAccessibility")
+    public void createSwipeRefreshLayout() {
+        createExpandableListView();
+
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        // 色指定
+        swipeRefreshLayout.setColorSchemeResources(R.color.blue, R.color.lightBlue);
+
+        //スワイプ時の動作設定
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                peer.refreshPeerList();
             }
         });
     }
@@ -432,41 +437,8 @@ public class MainActivity extends AppCompatActivity {
             //TODO
             //change color
 
-            //クリック時にsortを行う
-            sortListView();
         }
     };
-
-    /**
-     * ListViewのソートを行う
-     */
-    private void sortListView() {
-        //FButtonの取得
-        FButton favoriteBtn = findViewById(R.id.favoriteButton);
-        FButton FFBtn = findViewById(R.id.FFButton);
-        FButton offlineBtn = findViewById(R.id.offlineButton);
-
-        //一度オンライン状態の更新のためrefresh
-        peer.refreshPeerList();
-
-        //それぞれの設定を元にlistに格納
-        List<MyUser> list = myTwitter.getFFList();
-        for (MyUser user : list) {
-            if (!(boolean) favoriteBtn.getTag()) {
-                if (user.isFavorite()) {
-                    list.remove(user);
-                }
-            }
-            if (!(boolean) offlineBtn.getTag()) {
-                if (!user.isOnline()) {
-                    list.remove(user);
-                }
-            }
-        }
-
-        //ListViewへlistを反映
-        myTwitter.setListViewList(list);
-    }
 
     /**
      * API23以降必要 音声権限

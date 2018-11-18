@@ -15,7 +15,6 @@ import com.the_mad_pillow.twitphone.R;
 import com.the_mad_pillow.twitphone.twitter.MyUser;
 
 import java.util.List;
-import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import lombok.Getter;
@@ -28,7 +27,7 @@ public class ExpandableAdapter extends BaseExpandableListAdapter {
     private List<String> groups;
     private SparseArray<List<MyUser>> children;
 
-    public ExpandableAdapter(MainActivity activity, List<String> groups,SparseArray<List<MyUser>> children) {
+    public ExpandableAdapter(MainActivity activity, List<String> groups, SparseArray<List<MyUser>> children) {
         this.activity = activity;
         this.groups = groups;
         this.children = children;
@@ -77,7 +76,7 @@ public class ExpandableAdapter extends BaseExpandableListAdapter {
         textView.setLayoutParams(param);
 
         textView.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
-        textView.setPadding(64, 0, 0, 0);
+        textView.setPadding(72, 0, 0, 0);
         textView.setTextSize(20);
 
         return textView;
