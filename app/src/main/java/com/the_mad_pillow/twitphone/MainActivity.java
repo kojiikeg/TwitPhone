@@ -20,7 +20,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Gravity;
@@ -96,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
         checkAudioPermission();
 
         //ActionBar設定
-        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+        setSupportActionBar(findViewById(R.id.toolbar));
 
         //非同期TaskのデータをUIThreadで処理するHandler
         @SuppressLint("HandlerLeak")
@@ -129,24 +128,21 @@ public class MainActivity extends AppCompatActivity {
     private void createSwitchListMenu() {
         final CircleImageView switchListMenuButton = findViewById(R.id.switchListMenuButton);
         switchListMenuButton.setTag(getResources().getInteger(R.integer.CLOSE));
-        switchListMenuButton.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                view.performClick();
-                switchingListMenu();
+        switchListMenuButton.setOnTouchListener((view, motionEvent) -> {
+            view.performClick();
+            switchingListMenu();
 
-                //HighLight
-                switch (motionEvent.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        ((ImageView) view).setColorFilter(Color.argb(100, 255, 255, 255));
-                        break;
-                    case MotionEvent.ACTION_UP:
-                    case MotionEvent.ACTION_CANCEL:
-                        ((ImageView) view).setColorFilter(null);
-                        break;
-                }
-                return true;
+            //HighLight
+            switch (motionEvent.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    ((ImageView) view).setColorFilter(Color.argb(100, 255, 255, 255));
+                    break;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    ((ImageView) view).setColorFilter(null);
+                    break;
             }
+            return true;
         });
     }
 
@@ -245,18 +241,8 @@ public class MainActivity extends AppCompatActivity {
         objectAnimatorOffline.setStartDelay(200);
 
         favoriteButton.setVisibility(View.VISIBLE);
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                FFButton.setVisibility(View.VISIBLE);
-            }
-        }, 100);
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                offlineButton.setVisibility(View.VISIBLE);
-            }
-        }, 200);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> FFButton.setVisibility(View.VISIBLE), 100);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> offlineButton.setVisibility(View.VISIBLE), 200);
 
         //アニメーション速度操作
         objectAnimator.setInterpolator(new EasingInterpolator(Ease.QUAD_IN_OUT));
@@ -274,12 +260,7 @@ public class MainActivity extends AppCompatActivity {
         objectAnimatorFF.start();
         objectAnimatorOffline.start();
 
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                switchingButton.setTag(-tempState);
-            }
-        }, 1000);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> switchingButton.setTag(-tempState), 1000);
     }
 
     /**
@@ -359,31 +340,28 @@ public class MainActivity extends AppCompatActivity {
 
 
         //Listクリック時の動作設定
-        expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-            @Override
-            public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i1, long l) {
-                if ((int) findViewById(R.id.switchListMenuButton).getTag() == getResources().getInteger(R.integer.CLOSE)) {
-                    Dialog showMenuDialog = new Dialog(MainActivity.this);
-                    showMenuDialog.setContentView(R.layout.list_menu);
-                    final CircleImageView image = showMenuDialog.findViewById(R.id.listMenuImage);
-                    Glide.with(MainActivity.this)
-                            .load(myTwitter.getFFList().get(i).getUser().profileImageUrlHttps)
-                            .into(new SimpleTarget<Drawable>() {
-                                @Override
-                                public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
-                                    image.setImageDrawable(resource);
-                                }
-                            });
+        expandableListView.setOnChildClickListener((ExpandableListView, view, i, i1, l) -> {
+            if ((int) findViewById(R.id.switchListMenuButton).getTag() == getResources().getInteger(R.integer.CLOSE)) {
+                Dialog showMenuDialog = new Dialog(MainActivity.this);
+                showMenuDialog.setContentView(R.layout.list_menu);
+                final CircleImageView image = showMenuDialog.findViewById(R.id.listMenuImage);
+                Glide.with(MainActivity.this)
+                        .load(myTwitter.getFFList().get(i).getUser().profileImageUrlHttps)
+                        .into(new SimpleTarget<Drawable>() {
+                            @Override
+                            public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
+                                image.setImageDrawable(resource);
+                            }
+                        });
 
-                    if (showMenuDialog.getWindow() != null) {
-                        showMenuDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                    }
-                    showMenuDialog.show();
-
+                if (showMenuDialog.getWindow() != null) {
+                    showMenuDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                 }
+                showMenuDialog.show();
 
-                return true;
             }
+
+            return true;
         });
     }
 
@@ -399,12 +377,7 @@ public class MainActivity extends AppCompatActivity {
         swipeRefreshLayout.setColorSchemeResources(R.color.blue, R.color.lightBlue);
 
         //スワイプ時の動作設定
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                peer.refreshPeerList();
-            }
-        });
+        swipeRefreshLayout.setOnRefreshListener(() -> peer.refreshPeerList());
     }
 
     /**
@@ -429,15 +402,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //sort用のFButtonのクリック時の処理
-    View.OnClickListener sortButtonClick = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            view.setTag(!(boolean) view.getTag());
+    View.OnClickListener sortButtonClick = view -> {
+        view.setTag(!(boolean) view.getTag());
 
-            //TODO
-            //change color
+        //TODO
+        //change color
 
-        }
     };
 
     /**

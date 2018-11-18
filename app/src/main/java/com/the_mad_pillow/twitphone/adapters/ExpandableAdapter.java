@@ -17,11 +17,7 @@ import com.the_mad_pillow.twitphone.twitter.MyUser;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
 public class ExpandableAdapter extends BaseExpandableListAdapter {
     private MainActivity activity;
     private List<String> groups;

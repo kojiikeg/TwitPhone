@@ -101,14 +101,11 @@ public class MyTwitter {
      * API制限によるアプリの終了
      */
     private void finish() {
-        ((Activity) activity).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(activity, "TwitterAPI制限によるエラー\n時間をあけてください", Toast.LENGTH_SHORT)
-                        .show();
+        ((Activity) activity).runOnUiThread(() -> {
+            Toast.makeText(activity, "TwitterAPI制限によるエラー\n時間をあけてください", Toast.LENGTH_SHORT)
+                    .show();
 
-                ((Activity) activity).finish();
-            }
+            ((Activity) activity).finish();
         });
     }
 
