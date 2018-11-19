@@ -123,7 +123,7 @@ public class MyTwitter {
     public List<MyUser> getFavoriteList(boolean reload) {
         if (favoriteList == null || reload) {
             favoriteList = new ArrayList<>();
-            for (MyUser user : FFList) {
+            for (MyUser user : getFFList()) {
                 if (user.isFavorite()) {
                     favoriteList.add(user);
                 }
@@ -136,7 +136,7 @@ public class MyTwitter {
     public List<MyUser> getOnlineList(boolean reload) {
         if (onlineList == null || reload) {
             onlineList = new ArrayList<>();
-            for (MyUser user : FFList) {
+            for (MyUser user : getFFList()) {
                 if (user.isOnline()) {
                     onlineList.add(user);
                 }

@@ -10,8 +10,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.the_mad_pillow.twitphone.MainActivity;
 import com.the_mad_pillow.twitphone.R;
+import com.the_mad_pillow.twitphone.activities.MainActivity;
 import com.the_mad_pillow.twitphone.twitter.MyUser;
 
 import java.util.List;
@@ -31,12 +31,12 @@ public class ExpandableAdapter extends BaseExpandableListAdapter {
 
     @Override
     public int getGroupCount() {
-        return groups.size();
+        return children.size();
     }
 
     @Override
     public int getChildrenCount(int i) {
-        return children.size();
+        return children.get(i).size();
     }
 
     @Override
@@ -107,8 +107,7 @@ public class ExpandableAdapter extends BaseExpandableListAdapter {
 
         Glide.with(view).load(myUser.getUser().profileImageUrlHttps).into(imageView);
         nameText.setText(myUser.getUser().name);
-        screenNameText.setText(activity.getString(
-                R.string.screenName, myUser.getUser().screenName));
+        screenNameText.setText(activity.getString(R.string.screenName, myUser.getUser().screenName));
         if (myUser.isOnline()) {
             statusView.setImageDrawable(activity.getResources().getDrawable(R.drawable.ic_insert_emoticon_black_24dp));
         } else {
@@ -120,6 +119,6 @@ public class ExpandableAdapter extends BaseExpandableListAdapter {
 
     @Override
     public boolean isChildSelectable(int i, int i1) {
-        return false;
+        return true;
     }
 }
