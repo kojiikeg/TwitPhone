@@ -6,7 +6,7 @@
     android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".activities.MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -31,11 +31,11 @@
                     android:id="@+id/swipeRefreshLayout"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
-                <ExpandableListView
-                    android:id="@+id/FFExpandableListView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
-                </ExpandableListView>
+
+                    <ExpandableListView
+                        android:id="@+id/FFExpandableListView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
                 </android.support.v4.widget.SwipeRefreshLayout>
             </RelativeLayout>
 
@@ -54,7 +54,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <com.the_mad_pillow.twitphone.FButton
+                <com.the_mad_pillow.twitphone.others.FButton
                     android:id="@+id/favoriteButton"
                     android:layout_width="300dp"
                     android:layout_height="wrap_content"
@@ -66,7 +66,7 @@
                     fbutton:buttonColor="@color/pink"
                     fbutton:shadowColor="@color/red" />
 
-                <com.the_mad_pillow.twitphone.FButton
+                <com.the_mad_pillow.twitphone.others.FButton
                     android:id="@+id/FFButton"
                     android:layout_width="300dp"
                     android:layout_height="wrap_content"
@@ -78,7 +78,7 @@
                     fbutton:buttonColor="@color/green"
                     fbutton:shadowColor="@color/red" />
 
-                <com.the_mad_pillow.twitphone.FButton
+                <com.the_mad_pillow.twitphone.others.FButton
                     android:id="@+id/offlineButton"
                     android:layout_width="300dp"
                     android:layout_height="wrap_content"

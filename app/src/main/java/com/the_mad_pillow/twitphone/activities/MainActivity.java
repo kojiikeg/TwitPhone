@@ -1,4 +1,4 @@
-package com.the_mad_pillow.twitphone;
+package com.the_mad_pillow.twitphone.activities;
 
 import android.Manifest;
 import android.animation.ObjectAnimator;
@@ -37,7 +37,11 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.daasuu.ei.Ease;
 import com.daasuu.ei.EasingInterpolator;
+import com.the_mad_pillow.twitphone.BuildConfig;
+import com.the_mad_pillow.twitphone.R;
 import com.the_mad_pillow.twitphone.adapters.ExpandableAdapter;
+import com.the_mad_pillow.twitphone.others.FButton;
+import com.the_mad_pillow.twitphone.others.MyPeer;
 import com.the_mad_pillow.twitphone.twitter.MyTwitter;
 import com.the_mad_pillow.twitphone.twitter.MyUser;
 import com.twitter.sdk.android.core.DefaultLogger;
@@ -45,9 +49,11 @@ import com.twitter.sdk.android.core.Twitter;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
 import com.twitter.sdk.android.core.TwitterConfig;
 import com.twitter.sdk.android.core.TwitterCore;
+import com.twitter.sdk.android.core.models.User;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.skyway.Peer.Browser.Navigator;
@@ -69,6 +75,9 @@ public class MainActivity extends AppCompatActivity {
 
     //ListMenu開閉用のButtonの初期座標
     private float defaultMenuSwitchingButtonX;
+
+    private Dialog callDialog;
+
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -338,32 +347,54 @@ public class MainActivity extends AppCompatActivity {
         expandableListView.expandGroup(1);
         expandableListView.expandGroup(2);
 
-
         //Listクリック時の動作設定
-        expandableListView.setOnChildClickListener((ExpandableListView, view, i, i1, l) -> {
-            if ((int) findViewById(R.id.switchListMenuButton).getTag() == getResources().getInteger(R.integer.CLOSE)) {
-                Dialog showMenuDialog = new Dialog(MainActivity.this);
-                showMenuDialog.setContentView(R.layout.list_menu);
-                final CircleImageView image = showMenuDialog.findViewById(R.id.listMenuImage);
-                Glide.with(MainActivity.this)
-                        .load(myTwitter.getFFList().get(i).getUser().profileImageUrlHttps)
-                        .into(new SimpleTarget<Drawable>() {
-                            @Override
-                            public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
-                                image.setImageDrawable(resource);
-                            }
-                        });
-
-                if (showMenuDialog.getWindow() != null) {
-                    showMenuDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                }
-                showMenuDialog.show();
-
-            }
-
-            return true;
+        expandableListView.setOnChildClickListener((ExpandableListView, view, groupPosition, childPosition, id) -> {
+            showPopup(children.get(groupPosition).get(childPosition).getUser());
+            return false;
         });
     }
+
+
+    public void showPopup(User user) {
+        callDialog = new Dialog(this);
+        callDialog.setContentView(R.layout.custompopup);
+
+        TextView txtClose = callDialog.findViewById(R.id.txtClose);
+        txtClose.setOnClickListener(v -> callDialog.dismiss());
+        Objects.requireNonNull(callDialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        ImageView profileImage = callDialog.findViewById(R.id.profileImage);
+        RequestOptions requestOptions = new RequestOptions()
+                .override(120, 120)
+                .circleCrop();
+        Glide.with(this)
+                .load(user.profileImageUrlHttps.replace("_normal", ""))
+                .apply(RequestOptions.circleCropTransform())
+                .into(new SimpleTarget<Drawable>() {
+                    @Override
+                    public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
+                        profileImage.setImageDrawable(resource);
+                    }
+                });
+
+        TextView screenName = callDialog.findViewById(R.id.screenName);
+        screenName.setText(user.screenName);
+
+        TextView userID = callDialog.findViewById(R.id.userID);
+        userID.setText(user.name);
+
+        TextView tweets = callDialog.findViewById(R.id.tweets);
+        tweets.setText(user.statusesCount);
+
+        TextView followers = callDialog.findViewById(R.id.followerCount);
+        tweets.setText(user.followersCount);
+
+        TextView friends = callDialog.findViewById(R.id.friendCount);
+        tweets.setText(user.friendsCount);
+
+        callDialog.show();
+    }
+
 
     /**
      * ListViewの設定
