@@ -3,6 +3,9 @@ package com.the_mad_pillow.twitphone.twitter;
 
 import com.twitter.sdk.android.core.models.User;
 
+import lombok.Data;
+
+@Data
 public class MyUser {
     private User user;
     private boolean online = false;
@@ -18,25 +21,9 @@ public class MyUser {
         //get Favorite Users & set
     }
 
-    public User getUser() {
-        return user;
-    }
-
     public MyUser setOnline(boolean isOnline) {
         online = isOnline;
 
         return this;
-    }
-
-    public boolean isOnline() {
-        return online;
-    }
-
-    public void setFavorite(boolean isFavorite){
-        favorite = isFavorite;
-    }
-
-    public boolean isFavorite(){
-        return favorite;
     }
 }

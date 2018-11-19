@@ -27,6 +27,10 @@ android {
             buildConfigField "String", "TWITTER_API_SECRET", "\"${project.property("TwitterConsumerSecret")}\""
         }
     }
+    compileOptions {
+        targetCompatibility 1.8
+        sourceCompatibility 1.8
+    }
 }
 
 dependencies {
@@ -41,6 +45,8 @@ dependencies {
     implementation 'com.twitter.sdk.android:twitter:3.1.1'
     implementation 'de.hdodenhof:circleimageview:2.0.0'
     implementation 'com.github.bumptech.glide:glide:4.4.0'
+    compileOnly 'org.projectlombok:lombok:1.18.4'
+    annotationProcessor 'org.projectlombok:lombok:1.18.4'
     implementation 'com.daasuu:EasingInterpolator:1.0.0'
     implementation 'info.hoang8f:fbutton:1.0.5'
 }

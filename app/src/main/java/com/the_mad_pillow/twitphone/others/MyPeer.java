@@ -1,7 +1,9 @@
-package com.the_mad_pillow.twitphone;
+package com.the_mad_pillow.twitphone.others;
 
 import android.util.Log;
 
+import com.the_mad_pillow.twitphone.BuildConfig;
+import com.the_mad_pillow.twitphone.activities.MainActivity;
 import com.the_mad_pillow.twitphone.twitter.MyUser;
 
 import org.json.JSONArray;
@@ -27,37 +29,29 @@ public class MyPeer {
     private Peer peer;
     private MediaConnection connection;
 
-    MyPeer(MainActivity activity, PeerOption options) {
-        peer = new Peer(activity, options);
-        this.activity = activity;
-    }
-
-    MyPeer(MainActivity activity, String peerId, PeerOption options) {
+    public MyPeer(MainActivity activity, String peerId, PeerOption options) {
         peer = new Peer(activity, peerId, options);
         this.activity = activity;
     }
 
     //受信設定
     public void init() {
-        peer.on(Peer.PeerEventEnum.CALL, new OnCallback() {
-            @Override
-            public void onCallback(Object o) {
-                Log.d(TAG, "CALL Event is Received");
-                if (o instanceof MediaConnection) {
-                    MediaConnection connection = (MediaConnection) o;
+        peer.on(Peer.PeerEventEnum.CALL, o -> {
+            Log.d(TAG, "CALL Event is Received");
+            if (o instanceof MediaConnection) {
+                MediaConnection connection = (MediaConnection) o;
 
-                    if (MyPeer.this.connection != null) {
-                        Log.d(TAG, "connection is already created");
-                        connection.close();
-                        return;
-                    }
-
-                    MediaStream stream = getMediaStream();
-                    connection.answer(stream);
-                    setConnectionCallback(connection);
-                    MyPeer.this.connection = connection;
-                    Log.d(TAG, "CALL Event is Received and Set");
+                if (MyPeer.this.connection != null) {
+                    Log.d(TAG, "connection is already created");
+                    connection.close();
+                    return;
                 }
+
+                MediaStream stream = getMediaStream();
+                connection.answer(stream);
+                setConnectionCallback(connection);
+                MyPeer.this.connection = connection;
+                Log.d(TAG, "CALL Event is Received and Set");
             }
         });
     }
@@ -74,29 +68,25 @@ public class MyPeer {
      * Listのオンライン状態のリロード
      */
     public void refreshPeerList() {
-        peer.listAllPeers(new OnCallback() {
-            @Override
-            public void onCallback(Object object) {
-                List<String> peerList = new ArrayList<>();
-                for (int i = 0; i < ((JSONArray) object).length(); i++) {
-                    try {
-                        peerList.add(((JSONArray) object).getString(i));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+        peer.listAllPeers(object -> {
+            List<String> peerList = new ArrayList<>();
+            for (int i = 0; i < ((JSONArray) object).length(); i++) {
+                try {
+                    peerList.add(((JSONArray) object).getString(i));
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-
-                for (MyUser user : activity.getMyTwitter().getListViewList()) {
-                    user.setOnline(peerList.contains(user.getUser().screenName));
-                }
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        activity.getAdapter().notifyDataSetChanged();
-                        activity.getSwipeRefreshLayout().setRefreshing(false);
-                    }
-                });
             }
+
+            for (MyUser user : activity.getMyTwitter().getFFList()) {
+                user.setOnline(peerList.contains(user.getUser().screenName));
+            }
+            //OnlineListの更新
+            activity.getMyTwitter().getOnlineList(true);
+            activity.runOnUiThread(() -> {
+                activity.getAdapter().notifyDataSetChanged();
+                activity.getSwipeRefreshLayout().setRefreshing(false);
+            });
         });
     }
 
@@ -153,12 +143,9 @@ public class MyPeer {
     }
 
     private void setConnectionCallback(MediaConnection connection) {
-        connection.on(MediaConnection.MediaEventEnum.CLOSE, new OnCallback() {
-            @Override
-            public void onCallback(Object o) {
-                Log.d(TAG, "Close Event is Received");
-                closeConnection();
-            }
+        connection.on(MediaConnection.MediaEventEnum.CLOSE, o -> {
+            Log.d(TAG, "Close Event is Received");
+            closeConnection();
         });
     }
 

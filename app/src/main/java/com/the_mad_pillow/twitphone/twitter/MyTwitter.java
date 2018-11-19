@@ -20,8 +20,9 @@ public class MyTwitter {
     private Handler handler;
     private MyTwitterApiClient myTwitterApiClient;
     private User user;
+    private List<MyUser> favoriteList;
+    private List<MyUser> onlineList;
     private List<MyUser> FFList;
-    private List<MyUser> listViewList;
     private List<User> friendList;
     private List<User> followerList;
 
@@ -100,14 +101,11 @@ public class MyTwitter {
      * API制限によるアプリの終了
      */
     private void finish() {
-        ((Activity) activity).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(activity, "TwitterAPI制限によるエラー\n時間をあけてください", Toast.LENGTH_SHORT)
-                        .show();
+        ((Activity) activity).runOnUiThread(() -> {
+            Toast.makeText(activity, "TwitterAPI制限によるエラー\n時間をあけてください", Toast.LENGTH_SHORT)
+                    .show();
 
-                ((Activity) activity).finish();
-            }
+            ((Activity) activity).finish();
         });
     }
 
@@ -122,16 +120,30 @@ public class MyTwitter {
         return FFList;
     }
 
-    public void setListViewList(List<MyUser> list) {
-        listViewList = list;
-    }
-
-    public List<MyUser> getListViewList(){
-        if(listViewList == null){
-            listViewList = getFFList();
+    public List<MyUser> getFavoriteList(boolean reload) {
+        if (favoriteList == null || reload) {
+            favoriteList = new ArrayList<>();
+            for (MyUser user : getFFList()) {
+                if (user.isFavorite()) {
+                    favoriteList.add(user);
+                }
+            }
         }
 
-        return listViewList;
+        return favoriteList;
+    }
+
+    public List<MyUser> getOnlineList(boolean reload) {
+        if (onlineList == null || reload) {
+            onlineList = new ArrayList<>();
+            for (MyUser user : getFFList()) {
+                if (user.isOnline()) {
+                    onlineList.add(user);
+                }
+            }
+        }
+
+        return onlineList;
     }
 
     private List<User> overlapList(List<User> listA, List<User> listB) {

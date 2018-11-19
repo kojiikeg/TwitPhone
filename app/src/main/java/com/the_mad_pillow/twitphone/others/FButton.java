@@ -1,4 +1,4 @@
-package com.the_mad_pillow.twitphone;
+package com.the_mad_pillow.twitphone.others;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -39,12 +39,14 @@ public class FButton extends android.support.v7.widget.AppCompatButton implement
 
     boolean isShadowColorDefined = false;
 
+    @SuppressLint("ClickableViewAccessibility")
     public FButton(Context context) {
         super(context);
         init();
         this.setOnTouchListener(this);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     public FButton(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
@@ -52,6 +54,7 @@ public class FButton extends android.support.v7.widget.AppCompatButton implement
         this.setOnTouchListener(this);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     public FButton(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init();

@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="@color/teal"
     android:orientation="vertical"
-    tools:context=".HomeActivity">
+    tools:context=".activities.HomeActivity">
 
     <ImageView
         android:id="@+id/homeImage"
@@ -14,8 +14,8 @@
         android:layout_centerHorizontal="true"
         android:layout_gravity="center"
         android:layout_margin="16dp"
-        android:src="@drawable/icon"
-        android:contentDescription="Home Image" />
+        android:contentDescription="Home Image"
+        android:src="@drawable/icon" />
 
     <TextView
         android:id="@+id/homeText"

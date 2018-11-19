@@ -1,4 +1,4 @@
-package com.the_mad_pillow.twitphone;
+package com.the_mad_pillow.twitphone.activities;
 
 import android.Manifest;
 import android.animation.ObjectAnimator;
@@ -20,15 +20,14 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.AdapterView;
+import android.widget.ExpandableListView;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -38,7 +37,11 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.daasuu.ei.Ease;
 import com.daasuu.ei.EasingInterpolator;
-import com.the_mad_pillow.twitphone.adapters.UserListAdapter;
+import com.the_mad_pillow.twitphone.BuildConfig;
+import com.the_mad_pillow.twitphone.R;
+import com.the_mad_pillow.twitphone.adapters.ExpandableAdapter;
+import com.the_mad_pillow.twitphone.others.FButton;
+import com.the_mad_pillow.twitphone.others.MyPeer;
 import com.the_mad_pillow.twitphone.twitter.MyTwitter;
 import com.the_mad_pillow.twitphone.twitter.MyUser;
 import com.twitter.sdk.android.core.DefaultLogger;
@@ -46,12 +49,16 @@ import com.twitter.sdk.android.core.Twitter;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
 import com.twitter.sdk.android.core.TwitterConfig;
 import com.twitter.sdk.android.core.TwitterCore;
+import com.twitter.sdk.android.core.models.User;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.skyway.Peer.Browser.Navigator;
 import io.skyway.Peer.PeerOption;
+import lombok.Getter;
 
 public class MainActivity extends AppCompatActivity {
     private static final int RECORD_AUDIO_REQUEST_ID = 1;
@@ -59,13 +66,18 @@ public class MainActivity extends AppCompatActivity {
 
     private MyPeer peer;
 
-    private UserListAdapter adapter;
+    @Getter
+    private ExpandableAdapter adapter;
+
     private SwipeRefreshLayout swipeRefreshLayout;
 
     private MyTwitter myTwitter;
 
     //ListMenu開閉用のButtonの初期座標
     private float defaultMenuSwitchingButtonX;
+
+    private Dialog callDialog;
+
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -92,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
         checkAudioPermission();
 
         //ActionBar設定
-        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+        setSupportActionBar(findViewById(R.id.toolbar));
 
         //非同期TaskのデータをUIThreadで処理するHandler
         @SuppressLint("HandlerLeak")
@@ -125,24 +137,21 @@ public class MainActivity extends AppCompatActivity {
     private void createSwitchListMenu() {
         final CircleImageView switchListMenuButton = findViewById(R.id.switchListMenuButton);
         switchListMenuButton.setTag(getResources().getInteger(R.integer.CLOSE));
-        switchListMenuButton.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                view.performClick();
-                switchingListMenu();
+        switchListMenuButton.setOnTouchListener((view, motionEvent) -> {
+            view.performClick();
+            switchingListMenu();
 
-                //HighLight
-                switch (motionEvent.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        ((ImageView) view).setColorFilter(Color.argb(100, 255, 255, 255));
-                        break;
-                    case MotionEvent.ACTION_UP:
-                    case MotionEvent.ACTION_CANCEL:
-                        ((ImageView) view).setColorFilter(null);
-                        break;
-                }
-                return true;
+            //HighLight
+            switch (motionEvent.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    ((ImageView) view).setColorFilter(Color.argb(100, 255, 255, 255));
+                    break;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    ((ImageView) view).setColorFilter(null);
+                    break;
             }
+            return true;
         });
     }
 
@@ -241,18 +250,8 @@ public class MainActivity extends AppCompatActivity {
         objectAnimatorOffline.setStartDelay(200);
 
         favoriteButton.setVisibility(View.VISIBLE);
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                FFButton.setVisibility(View.VISIBLE);
-            }
-        }, 100);
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                offlineButton.setVisibility(View.VISIBLE);
-            }
-        }, 200);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> FFButton.setVisibility(View.VISIBLE), 100);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> offlineButton.setVisibility(View.VISIBLE), 200);
 
         //アニメーション速度操作
         objectAnimator.setInterpolator(new EasingInterpolator(Ease.QUAD_IN_OUT));
@@ -270,12 +269,7 @@ public class MainActivity extends AppCompatActivity {
         objectAnimatorFF.start();
         objectAnimatorOffline.start();
 
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                switchingButton.setTag(-tempState);
-            }
-        }, 1000);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> switchingButton.setTag(-tempState), 1000);
     }
 
     /**
@@ -336,54 +330,85 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void createExpandableListView() {
+        List<String> groups = new ArrayList<>();
+        groups.add("お気に入り");
+        groups.add("オンライン");
+        groups.add("全て");
+        SparseArray<List<MyUser>> children = new SparseArray<>();
+        children.put(0, myTwitter.getFavoriteList(false));
+        children.put(1, myTwitter.getOnlineList(false));
+        children.put(2, myTwitter.getFFList());
+
+        ExpandableListView expandableListView = findViewById(R.id.FFExpandableListView);
+        adapter = new ExpandableAdapter(this, groups, children);
+        expandableListView.setAdapter(adapter);
+        expandableListView.expandGroup(0);
+        expandableListView.expandGroup(1);
+        expandableListView.expandGroup(2);
+
+        //Listクリック時の動作設定
+        expandableListView.setOnChildClickListener((ExpandableListView, view, groupPosition, childPosition, id) -> {
+            showPopup(children.get(groupPosition).get(childPosition).getUser());
+            return false;
+        });
+    }
+
+
+    public void showPopup(User user) {
+        callDialog = new Dialog(this);
+        callDialog.setContentView(R.layout.custompopup);
+
+        TextView txtClose = callDialog.findViewById(R.id.txtClose);
+        txtClose.setOnClickListener(v -> callDialog.dismiss());
+        Objects.requireNonNull(callDialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        ImageView profileImage = callDialog.findViewById(R.id.profileImage);
+        RequestOptions requestOptions = new RequestOptions()
+                .override(120, 120)
+                .circleCrop();
+        Glide.with(this)
+                .load(user.profileImageUrlHttps.replace("_normal", ""))
+                .apply(RequestOptions.circleCropTransform())
+                .into(new SimpleTarget<Drawable>() {
+                    @Override
+                    public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
+                        profileImage.setImageDrawable(resource);
+                    }
+                });
+
+        TextView screenName = callDialog.findViewById(R.id.screenName);
+        screenName.setText(user.screenName);
+
+        TextView userID = callDialog.findViewById(R.id.userID);
+        userID.setText(user.name);
+
+        TextView tweets = callDialog.findViewById(R.id.tweets);
+        tweets.setText(user.statusesCount);
+
+        TextView followers = callDialog.findViewById(R.id.followerCount);
+        tweets.setText(user.followersCount);
+
+        TextView friends = callDialog.findViewById(R.id.friendCount);
+        tweets.setText(user.friendsCount);
+
+        callDialog.show();
+    }
+
+
     /**
      * ListViewの設定
      */
     @SuppressLint("ClickableViewAccessibility")
     public void createSwipeRefreshLayout() {
-        //ListAdapter設定
-        final ListView listView = findViewById(R.id.listView);
-        adapter = new UserListAdapter(this, R.layout.user_list_item, myTwitter.getListViewList());
-        listView.setAdapter(adapter);
-        //listViewのTagをGestureListenerのスワイプされたかどうかのFlagとして利用する
+        createExpandableListView();
 
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         // 色指定
         swipeRefreshLayout.setColorSchemeResources(R.color.blue, R.color.lightBlue);
 
         //スワイプ時の動作設定
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                peer.refreshPeerList();
-            }
-        });
-
-        //Listクリック時の動作設定
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                if ((int) findViewById(R.id.switchListMenuButton).getTag() == getResources().getInteger(R.integer.CLOSE)) {
-                    Dialog showMenuDialog = new Dialog(MainActivity.this);
-                    showMenuDialog.setContentView(R.layout.list_menu);
-                    final CircleImageView image = showMenuDialog.findViewById(R.id.listMenuImage);
-                    Glide.with(MainActivity.this)
-                            .load(myTwitter.getFFList().get(i).getUser().profileImageUrlHttps)
-                            .into(new SimpleTarget<Drawable>() {
-                                @Override
-                                public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
-                                    image.setImageDrawable(resource);
-                                }
-                            });
-
-                    if (showMenuDialog.getWindow() != null) {
-                        showMenuDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                    }
-                    showMenuDialog.show();
-
-                }
-            }
-        });
+        swipeRefreshLayout.setOnRefreshListener(() -> peer.refreshPeerList());
     }
 
     /**
@@ -408,49 +433,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //sort用のFButtonのクリック時の処理
-    View.OnClickListener sortButtonClick = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            view.setTag(!(boolean) view.getTag());
+    View.OnClickListener sortButtonClick = view -> {
+        view.setTag(!(boolean) view.getTag());
 
-            //TODO
-            //change color
+        //TODO
+        //change color
 
-            //クリック時にsortを行う
-            sortListView();
-        }
     };
-
-    /**
-     * ListViewのソートを行う
-     */
-    private void sortListView() {
-        //FButtonの取得
-        FButton favoriteBtn = findViewById(R.id.favoriteButton);
-        FButton FFBtn = findViewById(R.id.FFButton);
-        FButton offlineBtn = findViewById(R.id.offlineButton);
-
-        //一度オンライン状態の更新のためrefresh
-        peer.refreshPeerList();
-
-        //それぞれの設定を元にlistに格納
-        List<MyUser> list = myTwitter.getFFList();
-        for (MyUser user : list) {
-            if (!(boolean) favoriteBtn.getTag()) {
-                if (user.isFavorite()) {
-                    list.remove(user);
-                }
-            }
-            if (!(boolean) offlineBtn.getTag()) {
-                if (!user.isOnline()) {
-                    list.remove(user);
-                }
-            }
-        }
-
-        //ListViewへlistを反映
-        myTwitter.setListViewList(list);
-    }
 
     /**
      * API23以降必要 音声権限
@@ -508,9 +497,5 @@ public class MainActivity extends AppCompatActivity {
 
     public MyTwitter getMyTwitter() {
         return myTwitter;
-    }
-
-    public UserListAdapter getAdapter() {
-        return adapter;
     }
 }
