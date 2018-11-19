@@ -1,10 +1,11 @@
-package com.the_mad_pillow.twitphone;
+package com.the_mad_pillow.twitphone.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
+import com.the_mad_pillow.twitphone.R;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.TwitterException;

@@ -1,7 +1,9 @@
-package com.the_mad_pillow.twitphone;
+package com.the_mad_pillow.twitphone.others;
 
 import android.util.Log;
 
+import com.the_mad_pillow.twitphone.BuildConfig;
+import com.the_mad_pillow.twitphone.activities.MainActivity;
 import com.the_mad_pillow.twitphone.twitter.MyUser;
 
 import org.json.JSONArray;
@@ -27,7 +29,7 @@ public class MyPeer {
     private Peer peer;
     private MediaConnection connection;
 
-    MyPeer(MainActivity activity, String peerId, PeerOption options) {
+    public MyPeer(MainActivity activity, String peerId, PeerOption options) {
         peer = new Peer(activity, peerId, options);
         this.activity = activity;
     }
