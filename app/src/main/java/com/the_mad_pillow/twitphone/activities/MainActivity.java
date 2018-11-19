@@ -68,9 +68,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Getter
     private ExpandableAdapter adapter;
-
+    @Getter
     private SwipeRefreshLayout swipeRefreshLayout;
-
+    @Getter
     private MyTwitter myTwitter;
 
     //ListMenu開閉用のButtonの初期座標
@@ -485,13 +485,5 @@ public class MainActivity extends AppCompatActivity {
                 break;
             }
         }
-    }
-
-    public SwipeRefreshLayout getSwipeRefreshLayout() {
-        return swipeRefreshLayout;
-    }
-
-    public MyTwitter getMyTwitter() {
-        return myTwitter;
     }
 }
