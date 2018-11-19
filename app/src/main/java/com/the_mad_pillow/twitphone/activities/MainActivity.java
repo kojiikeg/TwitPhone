@@ -332,8 +332,8 @@ public class MainActivity extends AppCompatActivity {
         groups.add("オンライン");
         groups.add("全て");
         SparseArray<List<MyUser>> children = new SparseArray<>();
-        children.put(0, myTwitter.getFavoriteList(false));
-        children.put(1, myTwitter.getOnlineList(false));
+        children.put(0, myTwitter.getFavoriteList(true));
+        children.put(1, myTwitter.getOnlineList(true));
         children.put(2, myTwitter.getFFList());
 
         ExpandableListView expandableListView = findViewById(R.id.FFExpandableListView);
@@ -348,6 +348,9 @@ public class MainActivity extends AppCompatActivity {
             showPopup(children.get(groupPosition).get(childPosition).getUser());
             return false;
         });
+
+        //Listのオンライン状態の取得
+        peer.refreshPeerList();
     }
 
 

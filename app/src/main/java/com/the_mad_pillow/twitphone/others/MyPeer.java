@@ -20,13 +20,17 @@ import io.skyway.Peer.MediaConnection;
 import io.skyway.Peer.OnCallback;
 import io.skyway.Peer.Peer;
 import io.skyway.Peer.PeerOption;
+import lombok.Data;
+import lombok.Getter;
 
 public class MyPeer {
     //debug
     private final String TAG = getClass().getSimpleName();
 
     private MainActivity activity;
+    @Getter
     private Peer peer;
+    @Getter
     private MediaConnection connection;
 
     public MyPeer(MainActivity activity, String peerId, PeerOption options) {
@@ -54,10 +58,6 @@ public class MyPeer {
                 Log.d(TAG, "CALL Event is Received and Set");
             }
         });
-    }
-
-    public Peer getPeer() {
-        return peer;
     }
 
     public void on(Peer.PeerEventEnum peerEventEnum, OnCallback callback) {
@@ -147,13 +147,5 @@ public class MyPeer {
             Log.d(TAG, "Close Event is Received");
             closeConnection();
         });
-    }
-
-    public boolean isDestroyed() {
-        return peer.isDestroyed();
-    }
-
-    public boolean isDisconnected() {
-        return peer.isDisconnected();
     }
 }

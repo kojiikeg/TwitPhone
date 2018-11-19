@@ -15,11 +15,15 @@ import com.twitter.sdk.android.core.models.User;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Getter;
+
 public class MyTwitter {
     private Context activity;
     private Handler handler;
     private MyTwitterApiClient myTwitterApiClient;
+    @Getter
     private User user;
+
     private List<MyUser> favoriteList;
     private List<MyUser> onlineList;
     private List<MyUser> FFList;
@@ -121,7 +125,7 @@ public class MyTwitter {
     }
 
     public List<MyUser> getFavoriteList(boolean reload) {
-        if (favoriteList == null || reload) {
+        if (reload || favoriteList == null) {
             favoriteList = new ArrayList<>();
             for (MyUser user : getFFList()) {
                 if (user.isFavorite()) {
@@ -134,7 +138,7 @@ public class MyTwitter {
     }
 
     public List<MyUser> getOnlineList(boolean reload) {
-        if (onlineList == null || reload) {
+        if (reload || onlineList == null) {
             onlineList = new ArrayList<>();
             for (MyUser user : getFFList()) {
                 if (user.isOnline()) {
@@ -158,9 +162,5 @@ public class MyTwitter {
         }
 
         return list;
-    }
-
-    public User getUser() {
-        return user;
     }
 }

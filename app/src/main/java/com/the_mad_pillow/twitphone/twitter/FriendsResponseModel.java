@@ -7,7 +7,10 @@ import com.twitter.sdk.android.core.models.User;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FriendsResponseModel {
+import lombok.Data;
+
+@Data
+class FriendsResponseModel {
     @SerializedName("previous_cursor")
     @Expose
     private Integer previousCursor;
@@ -27,24 +30,4 @@ public class FriendsResponseModel {
     @SerializedName("users")
     @Expose
     private List<User> results = new ArrayList<>();
-
-    public Integer getPreviousCursor() {
-        return previousCursor;
-    }
-
-    public String getPreviousCursorStr() {
-        return previousCursorStr;
-    }
-
-    public String getNextCursorStr() {
-        return nextCursorStr;
-    }
-
-    public List<User> getResults() {
-        return results;
-    }
-
-    public Long getNextCursor() {
-        return nextCursor;
-    }
 }

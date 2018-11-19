@@ -20,10 +20,4 @@ public class MyUser {
         //TODO
         //get Favorite Users & set
     }
-
-    public MyUser setOnline(boolean isOnline) {
-        online = isOnline;
-
-        return this;
-    }
 }
