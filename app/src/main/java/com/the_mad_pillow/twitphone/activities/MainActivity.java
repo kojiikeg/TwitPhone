@@ -170,20 +170,16 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-        if (getSupportActionBar() != null) {
-            RequestOptions requestOptions = new RequestOptions()
-                    .override(getSupportActionBar().getHeight() * 3 / 4)
-                    .circleCrop();
-            Glide.with(this)
-                    .load(myTwitter.getUser().profileImageUrlHttps)
-                    .apply(requestOptions)
-                    .into(new SimpleTarget<Drawable>() {
-                        @Override
-                        public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
-                            profileImage.setImageDrawable(resource);
-                        }
-                    });
-        }
+        Glide.with(this)
+                .load(myTwitter.getUser().profileImageUrlHttps.replace("_normal", ""))
+                .apply(RequestOptions.circleCropTransform())
+                .into(new SimpleTarget<Drawable>() {
+                    @Override
+                    public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
+                        profileImage.setImageDrawable(resource);
+                    }
+                });
+
         profileName.setText(myTwitter.getUser().name);
         profileID.setText(getString(R.string.screenName, myTwitter.getUser().screenName));
     }
@@ -318,7 +314,7 @@ public class MainActivity extends AppCompatActivity {
                     .override(getSupportActionBar().getHeight() * 3 / 4)
                     .circleCrop();
             Glide.with(this)
-                    .load(myTwitter.getUser().profileImageUrlHttps)
+                    .load(myTwitter.getUser().profileImageUrlHttps.replace("normal", "bigger"))
                     .apply(requestOptions)
                     .into(new SimpleTarget<Drawable>() {
                         @Override
@@ -363,13 +359,10 @@ public class MainActivity extends AppCompatActivity {
         txtClose.setOnClickListener(v -> callDialog.dismiss());
         Objects.requireNonNull(callDialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
-        ImageView profileImage = callDialog.findViewById(R.id.profileImage);
-        RequestOptions requestOptions = new RequestOptions()
-                .override(120, 120)
-                .circleCrop();
+        CircleImageView profileImage = callDialog.findViewById(R.id.profileImage);
         Glide.with(this)
                 .load(user.profileImageUrlHttps.replace("_normal", ""))
-                .apply(RequestOptions.circleCropTransform())
+                .apply(RequestOptions.overrideOf(120, 120))
                 .into(new SimpleTarget<Drawable>() {
                     @Override
                     public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
@@ -384,13 +377,13 @@ public class MainActivity extends AppCompatActivity {
         userID.setText(user.name);
 
         TextView tweets = callDialog.findViewById(R.id.tweets);
-        tweets.setText(user.statusesCount);
+        tweets.setText(String.valueOf(user.statusesCount));
 
         TextView followers = callDialog.findViewById(R.id.followerCount);
-        tweets.setText(user.followersCount);
+        followers.setText(String.valueOf(user.followersCount));
 
         TextView friends = callDialog.findViewById(R.id.friendCount);
-        tweets.setText(user.friendsCount);
+        friends.setText(String.valueOf(user.friendsCount));
 
         callDialog.show();
     }

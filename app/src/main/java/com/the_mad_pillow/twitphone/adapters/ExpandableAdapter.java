@@ -105,7 +105,7 @@ public class ExpandableAdapter extends BaseExpandableListAdapter {
         final TextView screenNameText = view.findViewById(R.id.listItemUserScreenName);
         final ImageView statusView = view.findViewById(R.id.listItemUserStatus);
 
-        Glide.with(view).load(myUser.getUser().profileImageUrlHttps).into(imageView);
+        Glide.with(view).load(myUser.getUser().profileImageUrlHttps.replace("normal", "bigger")).into(imageView);
         nameText.setText(myUser.getUser().name);
         screenNameText.setText(activity.getString(R.string.screenName, myUser.getUser().screenName));
         if (myUser.isOnline()) {
