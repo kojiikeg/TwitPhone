@@ -129,7 +129,7 @@
         </LinearLayout>
     </LinearLayout>
 
-    <info.hoang8f.widget.FButton
+    <com.the_mad_pillow.twitphone.others.FButton
         android:id="@+id/call"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

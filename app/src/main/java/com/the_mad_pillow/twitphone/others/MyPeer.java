@@ -20,7 +20,6 @@ import io.skyway.Peer.MediaConnection;
 import io.skyway.Peer.OnCallback;
 import io.skyway.Peer.Peer;
 import io.skyway.Peer.PeerOption;
-import lombok.Data;
 import lombok.Getter;
 
 public class MyPeer {
