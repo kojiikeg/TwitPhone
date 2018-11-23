@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.widget.TextView;
 
@@ -47,11 +48,11 @@ public class CallDialog extends Dialog {
                         profileImage.setImageDrawable(resource);
                     }
                 });
+        final ObjectAnimator animator = ObjectAnimator.ofFloat(profileImage, "rotation", 0, 360);
+        animator.setInterpolator(new EasingInterpolator(Ease.CUBIC_IN_OUT));
+        animator.setDuration(1000);
         profileImage.setOnTouchListener((view, motionEvent) -> {
-            if (view.getAnimation() == null) {
-                ObjectAnimator animator = ObjectAnimator.ofFloat(view, "rotation", 0, 360);
-                animator.setInterpolator(new EasingInterpolator(Ease.CIRC_IN_OUT));
-                animator.setDuration(1000);
+            if (!animator.isRunning()) {
                 animator.start();
             }
             return false;
@@ -78,6 +79,13 @@ public class CallDialog extends Dialog {
         FButton callButton = findViewById(R.id.call);
         callButton.setOnClickListener(view -> {
             Intent intent = new Intent(context, CallActivity.class);
+            context.startActivity(intent);
+        });
+
+        TextView openOtherApp = findViewById(R.id.openOtherApp);
+        openOtherApp.setOnClickListener(view -> {
+            Uri uri = Uri.parse("https://twitter.com/" + user.screenName);
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
             context.startActivity(intent);
         });
     }
