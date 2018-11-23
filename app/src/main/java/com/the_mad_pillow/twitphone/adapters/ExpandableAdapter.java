@@ -51,12 +51,12 @@ public class ExpandableAdapter extends BaseExpandableListAdapter {
 
     @Override
     public long getGroupId(int groupPosition) {
-        return -1;
+        return groupPosition;
     }
 
     @Override
     public long getChildId(int groupPosition, int childPosition) {
-        return -1;
+        return childPosition;
     }
 
     @Override

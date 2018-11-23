@@ -4,11 +4,9 @@ import android.Manifest;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.annotation.SuppressLint;
-import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -44,6 +42,7 @@ import com.the_mad_pillow.twitphone.others.FButton;
 import com.the_mad_pillow.twitphone.others.MyPeer;
 import com.the_mad_pillow.twitphone.twitter.MyTwitter;
 import com.the_mad_pillow.twitphone.twitter.MyUser;
+import com.the_mad_pillow.twitphone.views.CallDialog;
 import com.twitter.sdk.android.core.DefaultLogger;
 import com.twitter.sdk.android.core.Twitter;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
@@ -53,7 +52,6 @@ import com.twitter.sdk.android.core.models.User;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.skyway.Peer.Browser.Navigator;
@@ -75,9 +73,6 @@ public class MainActivity extends AppCompatActivity {
 
     //ListMenu開閉用のButtonの初期座標
     private float defaultMenuSwitchingButtonX;
-
-    private Dialog callDialog;
-
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -126,7 +121,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         };
-
         myTwitter = new MyTwitter(this, handler);
 
         createSwitchListMenu();
@@ -245,10 +239,6 @@ public class MainActivity extends AppCompatActivity {
                 offlineButton, ButtonsTranslationX);
         objectAnimatorOffline.setStartDelay(200);
 
-        favoriteButton.setVisibility(View.VISIBLE);
-        new Handler(Looper.getMainLooper()).postDelayed(() -> FFButton.setVisibility(View.VISIBLE), 100);
-        new Handler(Looper.getMainLooper()).postDelayed(() -> offlineButton.setVisibility(View.VISIBLE), 200);
-
         //アニメーション速度操作
         objectAnimator.setInterpolator(new EasingInterpolator(Ease.QUAD_IN_OUT));
         objectAnimator.setDuration(1000);
@@ -264,6 +254,12 @@ public class MainActivity extends AppCompatActivity {
         objectAnimatorFavorite.start();
         objectAnimatorFF.start();
         objectAnimatorOffline.start();
+
+        if (!favoriteButton.isShown()) {
+            new Handler(Looper.getMainLooper()).postDelayed(() -> favoriteButton.setVisibility(View.VISIBLE), 100);
+            new Handler(Looper.getMainLooper()).postDelayed(() -> FFButton.setVisibility(View.VISIBLE), 200);
+            new Handler(Looper.getMainLooper()).postDelayed(() -> offlineButton.setVisibility(View.VISIBLE), 300);
+        }
 
         new Handler(Looper.getMainLooper()).postDelayed(() -> switchingButton.setTag(-tempState), 1000);
     }
@@ -348,46 +344,10 @@ public class MainActivity extends AppCompatActivity {
             showPopup(children.get(groupPosition).get(childPosition).getUser());
             return false;
         });
-
-        //Listのオンライン状態の取得
-        peer.refreshPeerList();
     }
 
-
     public void showPopup(User user) {
-        callDialog = new Dialog(this);
-        callDialog.setContentView(R.layout.custompopup);
-
-        TextView txtClose = callDialog.findViewById(R.id.txtClose);
-        txtClose.setOnClickListener(v -> callDialog.dismiss());
-        Objects.requireNonNull(callDialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-
-        CircleImageView profileImage = callDialog.findViewById(R.id.profileImage);
-        Glide.with(this)
-                .load(user.profileImageUrlHttps.replace("_normal", ""))
-                .apply(RequestOptions.overrideOf(120, 120))
-                .into(new SimpleTarget<Drawable>() {
-                    @Override
-                    public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
-                        profileImage.setImageDrawable(resource);
-                    }
-                });
-
-        TextView screenName = callDialog.findViewById(R.id.screenName);
-        screenName.setText(user.screenName);
-
-        TextView userID = callDialog.findViewById(R.id.userID);
-        userID.setText(user.name);
-
-        TextView tweets = callDialog.findViewById(R.id.tweets);
-        tweets.setText(String.valueOf(user.statusesCount));
-
-        TextView followers = callDialog.findViewById(R.id.followerCount);
-        followers.setText(String.valueOf(user.followersCount));
-
-        TextView friends = callDialog.findViewById(R.id.friendCount);
-        friends.setText(String.valueOf(user.friendsCount));
-
+        CallDialog callDialog = new CallDialog(this, user);
         callDialog.show();
     }
 
@@ -405,6 +365,8 @@ public class MainActivity extends AppCompatActivity {
 
         //スワイプ時の動作設定
         swipeRefreshLayout.setOnRefreshListener(() -> peer.refreshPeerList());
+
+        peer.refreshPeerList();
     }
 
     /**
