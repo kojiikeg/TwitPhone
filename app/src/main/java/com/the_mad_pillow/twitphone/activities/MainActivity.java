@@ -4,11 +4,9 @@ import android.Manifest;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.annotation.SuppressLint;
-import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -54,7 +52,6 @@ import com.twitter.sdk.android.core.models.User;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.skyway.Peer.Browser.Navigator;
@@ -242,10 +239,6 @@ public class MainActivity extends AppCompatActivity {
                 offlineButton, ButtonsTranslationX);
         objectAnimatorOffline.setStartDelay(200);
 
-        favoriteButton.setVisibility(View.VISIBLE);
-        new Handler(Looper.getMainLooper()).postDelayed(() -> FFButton.setVisibility(View.VISIBLE), 100);
-        new Handler(Looper.getMainLooper()).postDelayed(() -> offlineButton.setVisibility(View.VISIBLE), 200);
-
         //アニメーション速度操作
         objectAnimator.setInterpolator(new EasingInterpolator(Ease.QUAD_IN_OUT));
         objectAnimator.setDuration(1000);
@@ -261,6 +254,12 @@ public class MainActivity extends AppCompatActivity {
         objectAnimatorFavorite.start();
         objectAnimatorFF.start();
         objectAnimatorOffline.start();
+
+        if (!favoriteButton.isShown()) {
+            new Handler(Looper.getMainLooper()).postDelayed(() -> favoriteButton.setVisibility(View.VISIBLE), 100);
+            new Handler(Looper.getMainLooper()).postDelayed(() -> FFButton.setVisibility(View.VISIBLE), 200);
+            new Handler(Looper.getMainLooper()).postDelayed(() -> offlineButton.setVisibility(View.VISIBLE), 300);
+        }
 
         new Handler(Looper.getMainLooper()).postDelayed(() -> switchingButton.setTag(-tempState), 1000);
     }
