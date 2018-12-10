@@ -62,6 +62,10 @@ public class MainActivity extends AppCompatActivity {
     private static final int RECORD_AUDIO_REQUEST_ID = 1;
     private final String TAG = getClass().getSimpleName();
 
+    @Getter
+    private static MainActivity mainActivity;
+
+    @Getter
     private MyPeer peer;
 
     @Getter
@@ -78,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mainActivity = this;
         setContentView(R.layout.activity_main);
 
         TwitterConfig config = new TwitterConfig.Builder(this)
@@ -188,8 +193,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (peer != null) {
-            peer.getPeer().disconnect();
+        if (peer != null && peer.getConnection() != null) {
+            peer.closeConnection();
+        }
+        if (peer != null && !peer.getPeer().isDestroyed()) {
+            peer.getPeer().destroy();
+            peer = null;
         }
     }
 

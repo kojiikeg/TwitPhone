@@ -20,6 +20,7 @@ import com.daasuu.ei.Ease;
 import com.daasuu.ei.EasingInterpolator;
 import com.the_mad_pillow.twitphone.R;
 import com.the_mad_pillow.twitphone.activities.CallActivity;
+import com.the_mad_pillow.twitphone.activities.MainActivity;
 import com.the_mad_pillow.twitphone.others.FButton;
 import com.twitter.sdk.android.core.models.User;
 
@@ -28,13 +29,10 @@ import java.util.Objects;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class CallDialog extends Dialog {
-    private User user;
-
     @SuppressLint("ClickableViewAccessibility")
     public CallDialog(@NonNull Context context, User user) {
         super(context);
         setContentView(R.layout.custompopup);
-        this.user = user;
 
         Objects.requireNonNull(getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
@@ -79,7 +77,9 @@ public class CallDialog extends Dialog {
         FButton callButton = findViewById(R.id.call);
         callButton.setOnClickListener(view -> {
             Intent intent = new Intent(context, CallActivity.class);
+            intent.putExtra("peerImageUrl", user.profileImageUrlHttps);
             context.startActivity(intent);
+            ((MainActivity) context).getPeer().call(user.screenName);
         });
 
         TextView openOtherApp = findViewById(R.id.openOtherApp);

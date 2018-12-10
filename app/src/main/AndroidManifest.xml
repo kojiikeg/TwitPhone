@@ -30,7 +30,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".activities.HomeActivity" />
-        <activity android:name=".activities.CallActivity"></activity>
+        <activity android:name=".activities.CallActivity"/>
+        <activity android:name=".activities.AnswerActivity"/>
     </application>
 
 </manifest>

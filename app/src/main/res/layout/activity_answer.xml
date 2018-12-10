@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".activities.AnswerActivity">
+
+
+        <TextView
+            android:layout_margin="30dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="着信"
+            android:layout_gravity="center"
+            android:textSize="50sp"/>
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/image"
+        android:layout_width="240sp"
+        android:layout_height="240sp"
+        android:layout_gravity="center" />
+
+    <com.the_mad_pillow.twitphone.others.FButton
+        android:id="@+id/accept"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="40dp"
+        android:textSize="40sp"
+        android:layout_gravity="center"
+        android:text="通話に出る" />
+    <com.the_mad_pillow.twitphone.others.FButton
+        android:id="@+id/refuse"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="拒否" />
+
+</LinearLayout>
