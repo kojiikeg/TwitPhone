@@ -23,12 +23,13 @@
     </LinearLayout>
 
     <TextView
+        android:id="@+id/timer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_weight="1"
-        android:text="00:00:00"
-        android:textSize="80sp" />
+        android:text="接続中"
+        android:textSize="60sp" />
 
     <com.the_mad_pillow.twitphone.others.FButton
         android:id="@+id/finishButton"

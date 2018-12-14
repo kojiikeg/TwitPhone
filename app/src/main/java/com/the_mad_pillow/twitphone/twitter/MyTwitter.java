@@ -124,6 +124,22 @@ public class MyTwitter {
         return FFList;
     }
 
+    /**
+     * 指定されたScreenNameと一致するFF内のMyUserを返す
+     * 見つからない場合 null を返す
+     * @param screenName 検索するScreenName
+     * @return 見つかったMyUser 見つからない場合null
+     */
+    public MyUser getMyUser(String screenName){
+        for(MyUser myUser : FFList){
+            if(myUser.getUser().screenName.equals(screenName)){
+                return myUser;
+            }
+        }
+
+        return null;
+    }
+
     public List<MyUser> getFavoriteList(boolean reload) {
         if (reload || favoriteList == null) {
             favoriteList = new ArrayList<>();
