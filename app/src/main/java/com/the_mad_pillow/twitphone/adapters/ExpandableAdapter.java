@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -103,11 +104,22 @@ public class ExpandableAdapter extends BaseExpandableListAdapter {
         final CircleImageView imageView = view.findViewById(R.id.listItemUserImage);
         final TextView nameText = view.findViewById(R.id.listItemUserName);
         final TextView screenNameText = view.findViewById(R.id.listItemUserScreenName);
+        final CheckBox like = view.findViewById(R.id.likeStatus);
         final ImageView statusView = view.findViewById(R.id.listItemUserStatus);
 
         Glide.with(view).load(myUser.getUser().profileImageUrlHttps.replace("normal", "bigger")).into(imageView);
         nameText.setText(myUser.getUser().name);
         screenNameText.setText(activity.getString(R.string.screenName, myUser.getUser().screenName));
+        like.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                activity.getMyTwitter().addFavoriteUser(myUser);
+            } else {
+                activity.getMyTwitter().removeFavoriteUser(myUser);
+            }
+
+            activity.getPeer().refreshPeerList();
+        });
+
         if (myUser.isOnline()) {
             statusView.setImageDrawable(activity.getResources().getDrawable(R.drawable.ic_insert_emoticon_black_24dp));
         } else {

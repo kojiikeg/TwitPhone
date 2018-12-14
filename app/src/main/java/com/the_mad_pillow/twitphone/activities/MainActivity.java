@@ -333,13 +333,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void createExpandableListView() {
         List<String> groups = new ArrayList<>();
-        groups.add("お気に入り");
-        groups.add("オンライン");
-        groups.add("全て");
+        groups.add(getString(R.string.likes));
+        groups.add(getString(R.string.online));
+        groups.add(getString(R.string.other));
         SparseArray<List<MyUser>> children = new SparseArray<>();
         children.put(0, myTwitter.getFavoriteList(true));
         children.put(1, myTwitter.getOnlineList(true));
-        children.put(2, myTwitter.getFFList());
+        children.put(2, myTwitter.getOtherList(true));
 
         ExpandableListView expandableListView = findViewById(R.id.FFExpandableListView);
         adapter = new ExpandableAdapter(this, groups, children);
