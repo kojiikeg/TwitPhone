@@ -127,12 +127,13 @@ public class MyTwitter {
     /**
      * 指定されたScreenNameと一致するFF内のMyUserを返す
      * 見つからない場合 null を返す
+     *
      * @param screenName 検索するScreenName
      * @return 見つかったMyUser 見つからない場合null
      */
-    public MyUser getMyUser(String screenName){
-        for(MyUser myUser : FFList){
-            if(myUser.getUser().screenName.equals(screenName)){
+    public MyUser getMyUser(String screenName) {
+        for (MyUser myUser : FFList) {
+            if (myUser.getUser().screenName.equals(screenName)) {
                 return myUser;
             }
         }
@@ -154,13 +155,18 @@ public class MyTwitter {
     }
 
     public List<MyUser> getOnlineList(boolean reload) {
-        if (reload || onlineList == null) {
+        if (onlineList == null) {
             onlineList = new ArrayList<>();
+        }
+        if (reload) {
+            List<MyUser> tempOnlineList = new ArrayList<>();
             for (MyUser user : getFFList()) {
                 if (user.isOnline()) {
-                    onlineList.add(user);
+                    tempOnlineList.add(user);
                 }
             }
+            onlineList.clear();
+            onlineList.addAll(tempOnlineList);
         }
 
         return onlineList;
