@@ -26,6 +26,7 @@ public class MyTwitter {
 
     private List<MyUser> favoriteList;
     private List<MyUser> onlineList;
+    private List<MyUser> otherList;
     private List<MyUser> FFList;
     private List<User> friendList;
     private List<User> followerList;
@@ -142,13 +143,19 @@ public class MyTwitter {
     }
 
     public List<MyUser> getFavoriteList(boolean reload) {
-        if (reload || favoriteList == null) {
+        if (favoriteList == null) {
             favoriteList = new ArrayList<>();
+        }
+        if (reload) {
+            List<MyUser> tempFavoriteList = new ArrayList<>();
             for (MyUser user : getFFList()) {
                 if (user.isFavorite()) {
-                    favoriteList.add(user);
+                    tempFavoriteList.add(user);
                 }
             }
+
+            favoriteList.clear();
+            favoriteList.addAll(tempFavoriteList);
         }
 
         return favoriteList;
@@ -161,7 +168,7 @@ public class MyTwitter {
         if (reload) {
             List<MyUser> tempOnlineList = new ArrayList<>();
             for (MyUser user : getFFList()) {
-                if (user.isOnline()) {
+                if (!user.isFavorite() && user.isOnline()) {
                     tempOnlineList.add(user);
                 }
             }
@@ -171,6 +178,48 @@ public class MyTwitter {
 
         return onlineList;
     }
+
+    public List<MyUser> getOtherList(boolean reload) {
+        if (otherList == null) {
+            otherList = new ArrayList<>();
+        }
+        if (reload) {
+            List<MyUser> tempOtherList = new ArrayList<>();
+            for (MyUser user : getFFList()) {
+                if (!user.isFavorite() && !user.isOnline()) {
+                    tempOtherList.add(user);
+                }
+            }
+
+            otherList.clear();
+            otherList.addAll(tempOtherList);
+        }
+
+        return otherList;
+    }
+
+    public void addFavoriteUser(MyUser myUser) {
+        if (onlineList.contains(myUser)) {
+            onlineList.remove(myUser);
+        } else {
+            otherList.remove(myUser);
+        }
+
+        myUser.setFavorite(true);
+        favoriteList.add(myUser);
+    }
+
+    public void removeFavoriteUser(MyUser myUser) {
+        myUser.setFavorite(false);
+        favoriteList.remove(myUser);
+
+        if (myUser.isOnline()) {
+            onlineList.add(myUser);
+        } else {
+            otherList.add(myUser);
+        }
+    }
+
 
     private List<User> overlapList(List<User> listA, List<User> listB) {
         List<User> list = new ArrayList<>();

@@ -84,8 +84,9 @@ public class MyPeer {
             for (MyUser user : activity.getMyTwitter().getFFList()) {
                 user.setOnline(peerList.contains(user.getUser().screenName));
             }
-            //OnlineListの更新
+            //Listの更新
             activity.getMyTwitter().getOnlineList(true);
+            activity.getMyTwitter().getOtherList(true);
             activity.runOnUiThread(() -> {
                 activity.getAdapter().notifyDataSetChanged();
                 activity.getSwipeRefreshLayout().setRefreshing(false);
@@ -95,6 +96,7 @@ public class MyPeer {
 
     /**
      * 通話処理
+     *
      * @param peerId 通話相手のPeerID
      */
     public void call(String peerId) {
@@ -143,6 +145,7 @@ public class MyPeer {
 
     /**
      * 通話が切れた場合の処理
+     *
      * @param connection 現在のConnection
      */
     public void setConnectionCallback(MediaConnection connection) {

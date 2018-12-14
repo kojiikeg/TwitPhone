@@ -4,4 +4,8 @@
     <string name="screenName">\@%s</string>
     <string name="CannotReloadImage">Can\'t Reload Image</string>
     <string name="homeMessage">インストール\nありがとうございます\n\nまずはTwitterアカウントでの ログイン・認証\nお願いします</string>
+
+    <string name="likes">お気に入り</string>
+    <string name="online">オンライン</string>
+    <string name="other">その他</string>
 </resources>
