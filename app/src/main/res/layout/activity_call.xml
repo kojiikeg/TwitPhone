@@ -29,7 +29,7 @@
         android:layout_gravity="center"
         android:layout_weight="1"
         android:text="接続中"
-        android:textSize="80sp" />
+        android:textSize="60sp" />
 
     <com.the_mad_pillow.twitphone.others.FButton
         android:id="@+id/finishButton"

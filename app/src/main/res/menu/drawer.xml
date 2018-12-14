@@ -9,10 +9,10 @@
             android:title="ホーム" />
         <item
             android:icon="@android:drawable/ic_menu_gallery"
-            android:title="視聴履歴" />
+            android:title="通話履歴" />
         <item
             android:icon="@android:drawable/ic_menu_gallery"
-            android:title="ブックマーク" />
+            android:title="お気に入り" />
         <item
             android:icon="@android:drawable/ic_menu_gallery"
             android:title="マイページ" />
