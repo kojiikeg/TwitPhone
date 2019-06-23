@@ -68,9 +68,9 @@ public class MyPeer {
     }
 
     /**
-     * Listのオンライン状態のリロード
+     * Listのオンライン状態の取得
      */
-    public void refreshPeerList() {
+    public void reloadOnlineStatus() {
         peer.listAllPeers(object -> {
             List<String> peerList = new ArrayList<>();
             for (int i = 0; i < ((JSONArray) object).length(); i++) {
@@ -84,13 +84,20 @@ public class MyPeer {
             for (MyUser user : activity.getMyTwitter().getFFList()) {
                 user.setOnline(peerList.contains(user.getUser().screenName));
             }
-            //Listの更新
-            activity.getMyTwitter().getOnlineList(true);
-            activity.getMyTwitter().getOtherList(true);
-            activity.runOnUiThread(() -> {
-                activity.getAdapter().notifyDataSetChanged();
-                activity.getSwipeRefreshLayout().setRefreshing(false);
-            });
+
+            refreshPeerList();
+        });
+    }
+
+    /**
+     * List更新
+     */
+    public void refreshPeerList(){
+        activity.getMyTwitter().getOnlineList(true);
+        activity.getMyTwitter().getOtherList(true);
+        activity.runOnUiThread(() -> {
+            activity.getAdapter().notifyDataSetChanged();
+            activity.getSwipeRefreshLayout().setRefreshing(false);
         });
     }
 

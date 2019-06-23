@@ -110,6 +110,7 @@ public class ExpandableAdapter extends BaseExpandableListAdapter {
         Glide.with(view).load(myUser.getUser().profileImageUrlHttps.replace("normal", "bigger")).into(imageView);
         nameText.setText(myUser.getUser().name);
         screenNameText.setText(activity.getString(R.string.screenName, myUser.getUser().screenName));
+
         like.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
                 activity.getMyTwitter().addFavoriteUser(myUser);
